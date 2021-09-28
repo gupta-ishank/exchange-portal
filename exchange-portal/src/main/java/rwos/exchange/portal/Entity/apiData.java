@@ -1,48 +1,37 @@
 package rwos.exchange.portal.Entity;
 
+import java.io.File;
 import java.util.ArrayList;
+
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import org.springframework.beans.factory.annotation.Value;
 
-import org.hibernate.annotations.GenericGenerator;
+//import javax.persistence.CascadeType;
+//import javax.persistence.Entity;
+//import javax.persistence.GeneratedValue;
+//import javax.persistence.Id;
+//import javax.persistence.JoinColumn;
+//import javax.persistence.OneToMany;
 
-@Entity
-public class apiData {
+//import org.hibernate.annotations.GenericGenerator;
+
+public class ApiData {
 	
-	@Id
-	@GeneratedValue(generator = "book_seq")
-	@GenericGenerator(
-			name = "book_seq",
-			strategy = "rwos.exchange.portal.Generator.StringPrefixedSequenceIdGenerator"
-	)
-	private String id;
+	@Value("${mypath}")
+	private String mypath;
+	
 	private String name;
 	private String route;
+	private Integer type;
+	private List<String> files = new ArrayList<>();
+	private List<ApiData> children = new ArrayList<>();
+
+	public ApiData() {}
 	
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name="parent_id", referencedColumnName = "id")
-	private List<apiData> children = new ArrayList<>();
-	
-	public apiData() {}
-	
-	public apiData(String id, String name, String route) {
-		this.id = id;
+	public ApiData(String name, List<String> files) {
 		this.name = name;
-		this.route = route;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
+		this.files = files;
 	}
 
 	public String getName() {
@@ -53,6 +42,30 @@ public class apiData {
 		this.name = name;
 	}
 
+	public List<String> getFiles() {
+		return files;
+	}
+
+	public void setFiles(List<String> files) {
+		this.files = files;
+	}
+	
+	public void addFiles(String str) {
+		this.files.add(str);
+	}
+
+	public List<ApiData> getChildren() {
+		return children;
+	}
+
+	public void setChildren(List<ApiData> children) {
+		this.children = children;
+	}
+
+	public void addChildren(ApiData apidata) {
+		this.children.add(apidata);
+	}
+	
 	public String getRoute() {
 		return route;
 	}
@@ -60,15 +73,17 @@ public class apiData {
 	public void setRoute(String route) {
 		this.route = route;
 	}
+	
+//	public void addRoute(String route) {
+//		this.route += "/" + route;
+//	}
 
-	public List<apiData> getChildren() {
-		return children;
+	public Integer getType() {
+		return type;
 	}
 
-	public void setChildren(List<apiData> children) {
-		this.children = children;
+	public void setType(Integer type) {
+		this.type = type;
 	}
-	
-	
 	
 }
