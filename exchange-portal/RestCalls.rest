@@ -1,9 +1,9 @@
-GET http://localhost:8080/
+GET http://localhost:8080/exchange-portal-0.0.1-SNAPSHOT/
 
 
 ###
 
-POST http://localhost:8080/
+POST http://localhost:8080/exchange-portal-0.0.1-SNAPSHOT/
 Content-Type: application/json
 
 {
