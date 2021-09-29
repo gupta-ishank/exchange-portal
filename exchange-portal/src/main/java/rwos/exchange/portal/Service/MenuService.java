@@ -1,9 +1,13 @@
 package rwos.exchange.portal.Service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -32,5 +36,21 @@ public class MenuService {
         }
         
         return menus;
+    }
+
+    public String getFileContent(String path) {
+        File file = new File(path);
+        String data = "";
+        if(!file.isDirectory() && !file.isHidden() && file.exists()){
+            BufferedReader reader;
+            try {
+                reader = new BufferedReader(new FileReader(file));
+                data = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return data;
     }
 }
