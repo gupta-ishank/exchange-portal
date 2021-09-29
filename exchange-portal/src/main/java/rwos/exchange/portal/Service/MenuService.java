@@ -13,18 +13,9 @@ import rwos.exchange.portal.Entity.Menu;
 @Service
 public class MenuService {
 
-    private FileFilter fileFilter = new FileFilter(){
-
-        @Override
-        public boolean accept(File pathname) {
-            if(pathname.isDirectory() ||
-                !pathname.isHidden() ||
-                pathname.getName().endsWith(".json") || 
-                pathname.getName().endsWith(".yaml")) return true;
-            return false;
-        }
-        
-    };
+    private FileFilter filter = (file) -> file.isDirectory() || !file.isHidden()
+                                    || file.getName().endsWith(".json")
+                                    || file.getName().endsWith(".yaml");
 
     public int getType(File file){
         if(file.isDirectory()) return 1;
@@ -35,7 +26,7 @@ public class MenuService {
     public List<Menu> getAllMenu(File folder){
         List<Menu> menus = new ArrayList<>();
         if(folder.isDirectory()){
-            for(File file: folder.listFiles(fileFilter)){
+            for(File file: folder.listFiles(filter)){
                 menus.add(new Menu(file.getName(),file.getAbsolutePath(),getType(file), getAllMenu(file)));  
             }
         }
