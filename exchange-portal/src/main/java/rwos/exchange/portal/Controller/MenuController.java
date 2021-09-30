@@ -46,16 +46,16 @@ public class MenuController {
         return new FileContent(menuService.getFileContent(data.getPath()));
     }
     
-    @PostMapping("/register")
-    public String processRegister(User user) {
-        
-    	User newUser = new User();
-    	newUser.setEmail(user.getEmail());
-    	newUser.se
-         
-        return "register_success";
-    }
-    
+//    @PostMapping("/register")
+//    public String processRegister(User user) {
+//        
+//    	User newUser = new User();
+//    	newUser.setEmail(user.getEmail());
+//    	newUser.se
+//         
+//        return "register_success";
+//    }
+//    
     @PostMapping("/login")
 	public Response checkLoginDetails(@RequestBody User userCredentials) {
 		User loginDataFromDb = userRepository.getData(userCredentials.getUserName());
@@ -75,13 +75,15 @@ public class MenuController {
 		return new Response(str);
 	}
 //	
-//	@PostMapping("/signup")
-//	public LoginSignupResponse AddUser(@RequestBody LoginData userData) {
-//		LoginData userDataFromDb = apiDataRepository.isUserPresent(userData.getEmail());
-//		if(userDataFromDb != null) return new LoginSignupResponse("User already exists");
-//		String status = apiDataService.addUserData(userData);
-//		return new LoginSignupResponse(status);
-//	}
+	@PostMapping("/signup")
+	public Response AddUser(@RequestBody User userData) {
+		User userDataFromDb = userRepository.isUserPresent(userData.getEmail());
+		if(userDataFromDb != null) return new Response("User already exists");
+		
+		userRepository.save(userData);
+		String status = "Registered";
+		return new Response(status);
+	}
     
     
     
