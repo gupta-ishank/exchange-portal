@@ -20,6 +20,7 @@ import rwos.exchange.portal.Entity.ApiData;
 import rwos.exchange.portal.Entity.ApiPath;
 import rwos.exchange.portal.Entity.FileData;
 import rwos.exchange.portal.Entity.LoginData;
+import rwos.exchange.portal.Entity.LoginSignupResponse;
 import rwos.exchange.portal.Repository.ApiDataRepository;
 import rwos.exchange.portal.Service.ApiDataService;
 
@@ -51,7 +52,7 @@ public class ApiDataController {
 		return apiDataService.getAllApiData(file);
 	}
 	
-	@PostMapping("/api")
+	@PostMapping("")
 	public FileData getFileData(@RequestBody ApiPath apiPath) {
 		
 		String path = apiPath.getPath();
@@ -71,10 +72,10 @@ public class ApiDataController {
 		return new FileData(str);
 	}
 	
-	@PostMapping("")
-	public String checkLoginDetails(@RequestBody LoginData loginData) {
+	@PostMapping("/login")
+	public LoginSignupResponse checkLoginDetails(@RequestBody LoginData loginData) {
 		LoginData loginDataFromDb = apiDataRepository.getData(loginData.getUsername());
-		if(loginDataFromDb == null) return "Incorrect credentials";
+		if(loginDataFromDb == null) return new LoginSignupResponse("Incorrect credentials");
 		boolean flag = apiDataService.validateLogin(loginDataFromDb, loginData);
 		String str="";
 		if(!flag) {
@@ -82,13 +83,14 @@ public class ApiDataController {
 		}else {
 			str = "correct credentials";
 		}
-		return str;
+		return new LoginSignupResponse(str);
 	}
 	
 	@PostMapping("/signup")
-	public String AddUser(@RequestBody LoginData userData) {
+	public LoginSignupResponse AddUser(@RequestBody LoginData userData) {
 		LoginData userDataFromDb = apiDataRepository.isUserPresent(userData.getEmail());
-		if(userDataFromDb != null) return "User already exists";
-		return apiDataService.addUserData(userData);
+		if(userDataFromDb != null) return new LoginSignupResponse("User already exists");
+		String status = apiDataService.addUserData(userData);
+		return new LoginSignupResponse(status);
 	}
 }

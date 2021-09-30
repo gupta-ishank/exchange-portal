@@ -24,12 +24,11 @@ public class ApiData {
 	private String name;
 	private String route;
 	private Integer type;
-//	private List<String> files = new ArrayList<>();
-	private List<ApiData> children = new ArrayList<>();
+	private List<ApiData> childs = new ArrayList<>();
 
 	public ApiData() {}
 	
-	public ApiData(String name, List<String> files, String route, Integer type) {
+	public ApiData(String name, String route, Integer type) {
 		this.name = name;
 		this.route = route;
 		this.type = type;
@@ -43,28 +42,16 @@ public class ApiData {
 		this.name = name;
 	}
 
-//	public List<String> getFiles() {
-//		return files;
-//	}
-//
-//	public void setFiles(List<String> files) {
-//		this.files = files;
-//	}
-	
-//	public void addFiles(String str) {
-//		this.files.add(str);
-//	}
-
-	public List<ApiData> getChildren() {
-		return children;
+	public List<ApiData> getChilds() {
+		return childs;
 	}
 
-	public void setChildren(List<ApiData> children) {
-		this.children = children;
+	public void setChildren(List<ApiData> childs) {
+		this.childs = childs;
 	}
 
 	public void addChildren(ApiData apidata) {
-		this.children.add(apidata);
+		this.childs.add(apidata);
 	}
 	
 	public String getRoute() {
