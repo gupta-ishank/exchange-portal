@@ -2,6 +2,7 @@ package rwos.exchange.portal.Controller;
 
 import java.io.File;
 
+
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import rwos.exchange.portal.Entity.ApiData;
 import rwos.exchange.portal.Entity.ApiPath;
 import rwos.exchange.portal.Entity.FileData;
+import rwos.exchange.portal.Entity.LoginData;
+import rwos.exchange.portal.Repository.ApiDataRepository;
 import rwos.exchange.portal.Service.ApiDataService;
 
 //import rwos.exchange.portal.Repository.ApiDataRepository;
@@ -27,6 +30,8 @@ import rwos.exchange.portal.Service.ApiDataService;
 public class ApiDataController {
 	@Autowired
 	ApiDataService apiDataService;
+	@Autowired
+	ApiDataRepository apiDataRepository;
 	
 	@Value("${mypath}")
 	private String mypath;
@@ -64,5 +69,26 @@ public class ApiDataController {
 		
 		String str = apiDataService.getFileContent(path);
 		return new FileData(str);
+	}
+	
+	@PostMapping("")
+	public String checkLoginDetails(@RequestBody LoginData loginData) {
+		LoginData loginDataFromDb = apiDataRepository.getData(loginData.getUsername());
+		if(loginDataFromDb == null) return "Incorrect credentials";
+		boolean flag = apiDataService.validateLogin(loginDataFromDb, loginData);
+		String str="";
+		if(!flag) {
+			str = "Incorrect credentials";
+		}else {
+			str = "correct credentials";
+		}
+		return str;
+	}
+	
+	@PostMapping("/signup")
+	public String AddUser(@RequestBody LoginData userData) {
+		LoginData userDataFromDb = apiDataRepository.isUserPresent(userData.getEmail());
+		if(userDataFromDb != null) return "User already exists";
+		return apiDataService.addUserData(userData);
 	}
 }

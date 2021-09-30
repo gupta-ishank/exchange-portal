@@ -2,12 +2,15 @@ package rwos.exchange.portal.Service;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import rwos.exchange.portal.Entity.ApiData;
 import rwos.exchange.portal.Entity.ApiPath;
+import rwos.exchange.portal.Entity.LoginData;
+import rwos.exchange.portal.Repository.ApiDataRepository;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,8 +31,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class ApiDataService {
-	public List<ApiData> getAllApiData(File file) {
+	@Autowired
+	ApiDataRepository apiDataRepository;
 	
+	public List<ApiData> getAllApiData(File file) {
 		System.out.println( file.getPath() );
 		List<ApiData> dataList = new ArrayList<>();
 		for(File f : file.listFiles()) {
@@ -132,6 +137,20 @@ public class ApiDataService {
 			e.printStackTrace();
 		}
 		return data;
+	}
+	
+	public boolean validateLogin(LoginData loginDataFromDb, LoginData loginData) {
+		if(!loginDataFromDb.getUsername().equals(loginData.getUsername())) {
+			return false;
+		}else if(!loginDataFromDb.getPassword().equals(loginData.getPassword())){
+			return false;
+		}
+		return true;
+	}
+	
+	public String addUserData(LoginData userData) {
+		apiDataRepository.save(userData);
+		return "Successfully added user";
 	}
 	
 	
