@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import rwos.exchange.portal.Entity.AdminData;
 import rwos.exchange.portal.Entity.ApiData;
 import rwos.exchange.portal.Entity.ApiPath;
 import rwos.exchange.portal.Entity.LoginData;
+import rwos.exchange.portal.Repository.AdminDataRepository;
 import rwos.exchange.portal.Repository.ApiDataRepository;
 
 import java.io.BufferedReader;

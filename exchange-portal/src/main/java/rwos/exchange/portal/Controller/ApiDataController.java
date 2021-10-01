@@ -12,17 +12,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import rwos.exchange.portal.Entity.AdminData;
 import rwos.exchange.portal.Entity.ApiData;
 import rwos.exchange.portal.Entity.ApiPath;
 import rwos.exchange.portal.Entity.FileData;
 import rwos.exchange.portal.Entity.LoginData;
 import rwos.exchange.portal.Entity.LoginSignupResponse;
+import rwos.exchange.portal.Repository.AdminDataRepository;
 import rwos.exchange.portal.Repository.ApiDataRepository;
+import rwos.exchange.portal.Service.AdminDataService;
 import rwos.exchange.portal.Service.ApiDataService;
 
 //import rwos.exchange.portal.Repository.ApiDataRepository;
@@ -34,7 +38,11 @@ public class ApiDataController {
 	@Autowired
 	ApiDataService apiDataService;
 	@Autowired
+	AdminDataService adminDataService;
+	@Autowired
 	ApiDataRepository apiDataRepository;
+	@Autowired
+	AdminDataRepository adminDataRepository;
 	
 	@Value("${mypath}")
 	private String mypath;
@@ -88,5 +96,20 @@ public class ApiDataController {
 		if(userDataFromDb != null) return new LoginSignupResponse(false);
 		String status = apiDataService.addUserData(userData);
 		return new LoginSignupResponse(true);
+	}
+	
+	@GetMapping("/admin")
+	public List<AdminData> getdata(){
+		return adminDataRepository.findAll();
+	}
+	
+	@PostMapping("/admin")
+	public String addData(@RequestBody AdminData adminData) {
+		return adminDataService.addAdminData(adminData);
+	}
+	
+	@PutMapping("/admin")
+	public String updateData(@RequestBody AdminData adminData) {
+		return adminDataService.updateAdminData(adminData);
 	}
 }
