@@ -9,6 +9,7 @@ import java.util.Map;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +29,7 @@ import rwos.exchange.portal.Service.ApiDataService;
 
 @RestController
 @RequestMapping
+@CrossOrigin(origins="*")
 public class ApiDataController {
 	@Autowired
 	ApiDataService apiDataService;
@@ -53,9 +55,9 @@ public class ApiDataController {
 	}
 	
 	@PostMapping("")
-	public FileData getFileData(@RequestBody ApiPath apiPath) {
+	public FileData getFileData(@RequestBody ApiData apiPath) {
 		
-		String path = apiPath.getPath();
+		String path = apiPath.getRoute();
 //		if(apidata.getType() == 2) {
 //			return apiDataService.getJsonFileContent(path);			
 //		}
@@ -75,22 +77,16 @@ public class ApiDataController {
 	@PostMapping("/login")
 	public LoginSignupResponse checkLoginDetails(@RequestBody LoginData loginData) {
 		LoginData loginDataFromDb = apiDataRepository.getData(loginData.getUsername());
-		if(loginDataFromDb == null) return new LoginSignupResponse("Incorrect credentials");
+		if(loginDataFromDb == null) return new LoginSignupResponse(false);
 		boolean flag = apiDataService.validateLogin(loginDataFromDb, loginData);
-		String str="";
-		if(!flag) {
-			str = "Incorrect credentials";
-		}else {
-			str = "correct credentials";
-		}
-		return new LoginSignupResponse(str);
+		return new LoginSignupResponse(flag);
 	}
 	
 	@PostMapping("/signup")
 	public LoginSignupResponse AddUser(@RequestBody LoginData userData) {
 		LoginData userDataFromDb = apiDataRepository.isUserPresent(userData.getEmail());
-		if(userDataFromDb != null) return new LoginSignupResponse("User already exists");
+		if(userDataFromDb != null) return new LoginSignupResponse(false);
 		String status = apiDataService.addUserData(userData);
-		return new LoginSignupResponse(status);
+		return new LoginSignupResponse(true);
 	}
 }

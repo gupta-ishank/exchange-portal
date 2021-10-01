@@ -18,19 +18,16 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class ApiData {
 	
-	@Value("${mypath}")
-	private String mypath;
-	
 	private String name;
-	private String route;
+	private String path;
 	private Integer type;
 	private List<ApiData> childs = new ArrayList<>();
 
 	public ApiData() {}
 	
-	public ApiData(String name, String route, Integer type) {
+	public ApiData(String name, String path, Integer type) {
 		this.name = name;
-		this.route = route;
+		this.path = path;
 		this.type = type;
 	}
 
@@ -55,15 +52,15 @@ public class ApiData {
 	}
 	
 	public String getRoute() {
-		return route;
+		return path;
 	}
 
-	public void setRoute(String route) {
-		this.route = route;
+	public void setRoute(String path) {
+		this.path = path;
 	}
 	
-//	public void addRoute(String route) {
-//		this.route += "/" + route;
+//	public void addRoute(String path) {
+//		this.path += "/" + path;
 //	}
 
 	public Integer getType() {

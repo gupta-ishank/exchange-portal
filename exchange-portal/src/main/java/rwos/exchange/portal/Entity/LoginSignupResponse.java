@@ -1,19 +1,19 @@
 package rwos.exchange.portal.Entity;
 
 public class LoginSignupResponse {
-	private String status;
+	private boolean status;
 	
 	public LoginSignupResponse(){}
 	
-	public LoginSignupResponse(String status) {
+	public LoginSignupResponse(boolean status) {
 		this.status = status;
 	}
 
-	public String getStatus() {
+	public boolean getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(boolean status) {
 		this.status = status;
 	}
 	
