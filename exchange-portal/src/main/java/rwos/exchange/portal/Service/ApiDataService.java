@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import rwos.exchange.portal.Entity.AdminData;
 import rwos.exchange.portal.Entity.ApiData;
 import rwos.exchange.portal.Entity.ApiPath;
@@ -25,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -80,6 +83,10 @@ public class ApiDataService {
 					}else if(getFileExtension(f.getName()).equals("yaml") || getFileExtension(f.getName()).equals("yml")){
 						data.setType(3);
 					}
+//					ApiData d = new ApiData("POST", "/get", 4);
+//					data.addChildren(d);
+					List<ApiData> apiList = getAllApis(f.getAbsolutePath());
+					data.setChilds(apiList);
 				}
 				pData.addChildren(data);
 			}
@@ -154,6 +161,29 @@ public class ApiDataService {
 		apiDataRepository.save(userData);
 		return "Successfully added user";
 	}
+	
+	
+	public List<ApiData> getAllApis(String path){
+
+        List<ApiData> data = new ArrayList<>();
+        ObjectMapper oMapper = new ObjectMapper();
+        try {
+            Yaml yaml = new Yaml();
+            BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
+            LinkedHashMap<String, Object> customer = yaml.load(reader);
+            Map<String, Object> paths = oMapper.convertValue(customer.get("paths"), Map.class);
+            for (Map.Entry<String,Object> pathEntry : paths.entrySet()){
+                Map<String, Object> methods = oMapper.convertValue(pathEntry.getValue(), Map.class);
+                for (Map.Entry<String,Object> methodEntry : methods.entrySet()){
+                    Map<String, Object> methodData = oMapper.convertValue(methodEntry.getValue(), Map.class);
+                    data.add(new ApiData(methodEntry.getKey(),pathEntry.getKey(), methodData.get("summary").toString())); 
+                }
+            } 
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        return data;
+    }
 	
 	
 }
