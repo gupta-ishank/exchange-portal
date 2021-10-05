@@ -38,32 +38,44 @@ import java.util.stream.Collectors;
 
 //import javax.activation.MimetypesFileTypeMap;
 
+
 @Service
 public class ApiDataService {
 	@Autowired
 	ApiDataRepository apiDataRepository;
 
+	//private Long addSubFiles(File file, ApiData parentDirectory, HashSet<String> accessibleFilePaths) 
 	//Filtering all the unnecessary folders/files
-	public List<ApiData> getFilteredFolderStructure(File file, HashSet<String> accessibleFilePaths){
+	public List<ApiData> getFilteredFolderStructure(File file){
 		List<ApiData> folderStructure = new ArrayList<>(); // to hold final folder structure
 
 		for(File eachFile: file.listFiles()) {
 			ApiData attach = new ApiData(); // hold structure of child;
-			attach.setType(1);
 			attach.setName(eachFile.getName());
 			attach.setRoute(eachFile.getAbsolutePath());
-			Long countFiles = addSubFiles(eachFile, attach, accessibleFilePaths); // setting count of valid files in subDirectory
-			if(countFiles > 0) // If it is present then add else not
-				folderStructure.add(attach); // to create sub directory
+			if(eachFile.isDirectory())
+			{
+				attach.setType(1);
+				
+				Long countFiles = addSubFiles(eachFile, attach); // setting count of valid files in subDirectory
+//				if(countFiles > 0) // If it is present then add else not
+					folderStructure.add(attach); // to create sub directory
+			}else {
+				int type = valueByType(eachFile.getName());
+				if(type > 0) {
+					attach.setType(type);
+				}
+				folderStructure.add(attach);
+			}
 		}
 		return folderStructure;
 	}
-	Long addSubFiles(File file, ApiData parentDirectory, HashSet<String> accessibleFilePaths) {
+	private Long addSubFiles(File file, ApiData parentDirectory) {
 		Long countFiles = 0L;
 		Long currentDirCount = 0L;
 		for(File eachFile : file.listFiles()) {
 
-			if(!eachFile.isHidden() && accessibleFilePaths.contains(eachFile.getAbsolutePath())) {
+			if(!eachFile.isHidden() ) {
 				ApiData attach = new ApiData();
 				attach.setName(eachFile.getName());
 				attach.setRoute(eachFile.getAbsolutePath());
@@ -71,7 +83,7 @@ public class ApiDataService {
 				boolean validFile = false; // to make sure only .json, .yaml, .yml is considered
 				if(eachFile.isDirectory()) {
 					attach.setType(1);
-					currentDirCount = addSubFiles(eachFile, attach, accessibleFilePaths); // add count of all the valid files in the subDirectory
+					currentDirCount = addSubFiles(eachFile, attach); // add count of all the valid files in the subDirectory
 					countFiles += currentDirCount;
 					if(currentDirCount > 0) // check if file extension is valid
 						parentDirectory.addChildren(attach);
@@ -121,7 +133,6 @@ public class ApiDataService {
 		}
 		return dataList;
 	}
-	
 
 	private static String getFileExtension(String fullName) {
 		String fileName = new File(fullName).getName();
