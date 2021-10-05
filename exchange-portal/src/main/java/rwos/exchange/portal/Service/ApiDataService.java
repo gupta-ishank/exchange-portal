@@ -27,11 +27,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-<<<<<<< HEAD
+
 import java.util.HashSet;
-=======
+
 import java.util.LinkedHashMap;
->>>>>>> e77690e0d8dfd14f3f8f1c96a3fdb467cde2e4f6
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -72,6 +72,7 @@ public class ApiDataService {
 				if(eachFile.isDirectory()) {
 					attach.setType(1);
 					currentDirCount = addSubFiles(eachFile, attach, accessibleFilePaths); // add count of all the valid files in the subDirectory
+					countFiles += currentDirCount;
 					if(currentDirCount > 0) // check if file extension is valid
 						parentDirectory.addChildren(attach);
 				}
@@ -225,10 +226,7 @@ public class ApiDataService {
 		apiDataRepository.save(userData);
 		return "Successfully added user";
 	}
-<<<<<<< HEAD
 
-
-=======
 	
 	
 	public List<ApiData> getAllApis(String path){
@@ -254,5 +252,5 @@ public class ApiDataService {
     }
 	
 	
->>>>>>> e77690e0d8dfd14f3f8f1c96a3fdb467cde2e4f6
+
 }
