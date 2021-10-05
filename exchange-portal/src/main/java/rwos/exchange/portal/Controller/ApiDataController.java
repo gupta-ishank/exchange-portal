@@ -63,7 +63,7 @@ public class ApiDataController {
 //		}
 		System.out.println(mypath);
 		
-		return apiDataService.getAllApiData(file);
+		return apiDataService.getFilteredFolderStructure(file);
 	}
 	
 	@PostMapping("")

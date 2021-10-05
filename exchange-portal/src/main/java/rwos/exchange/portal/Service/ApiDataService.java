@@ -38,14 +38,13 @@ import java.util.stream.Collectors;
 
 //import javax.activation.MimetypesFileTypeMap;
 
-
 @Service
 public class ApiDataService {
 	@Autowired
 	ApiDataRepository apiDataRepository;
 
-	//private Long addSubFiles(File file, ApiData parentDirectory, HashSet<String> accessibleFilePaths) 
 	//Filtering all the unnecessary folders/files
+	//HashSet<String> accessibleFilePaths; To be implemented Later;
 	public List<ApiData> getFilteredFolderStructure(File file){
 		List<ApiData> folderStructure = new ArrayList<>(); // to hold final folder structure
 
@@ -53,29 +52,30 @@ public class ApiDataService {
 			ApiData attach = new ApiData(); // hold structure of child;
 			attach.setName(eachFile.getName());
 			attach.setRoute(eachFile.getAbsolutePath());
-			if(eachFile.isDirectory())
-			{
+			if(eachFile.isDirectory()) {
 				attach.setType(1);
-				
 				Long countFiles = addSubFiles(eachFile, attach); // setting count of valid files in subDirectory
-//				if(countFiles > 0) // If it is present then add else not
+				if(countFiles > 0) // If it is present then add else not
 					folderStructure.add(attach); // to create sub directory
-			}else {
+			}
+			else {
 				int type = valueByType(eachFile.getName());
 				if(type > 0) {
 					attach.setType(type);
 				}
+				List<ApiData> apiList = getAllApis(eachFile.getAbsolutePath());
+				attach.setChilds(apiList);
 				folderStructure.add(attach);
 			}
 		}
 		return folderStructure;
 	}
-	private Long addSubFiles(File file, ApiData parentDirectory) {
+	Long addSubFiles(File file, ApiData parentDirectory) {
 		Long countFiles = 0L;
 		Long currentDirCount = 0L;
 		for(File eachFile : file.listFiles()) {
 
-			if(!eachFile.isHidden() ) {
+			if(!eachFile.isHidden()) {
 				ApiData attach = new ApiData();
 				attach.setName(eachFile.getName());
 				attach.setRoute(eachFile.getAbsolutePath());
@@ -89,16 +89,18 @@ public class ApiDataService {
 						parentDirectory.addChildren(attach);
 				}
 				else {
-					
+
 					int type = valueByType(eachFile.getName());
 					if(type > 0) {
 						attach.setType(type);
 						countFiles++; // increment if the current directory is valid file.
 						validFile = true;
 					}
-					
-					if(countFiles > 0 && validFile == true) // check if file extension is valid
+					if(validFile == true) {// check if file extension is valid
+						List<ApiData> apiList = getAllApis(eachFile.getAbsolutePath());
+						attach.setChilds(apiList);
 						parentDirectory.addChildren(attach);
+					}
 				}
 			}
 		}
@@ -115,67 +117,33 @@ public class ApiDataService {
 		}
 	}
 
-	public List<ApiData> getAllApiData(File file) {
-		System.out.println( file.getPath() );
-		List<ApiData> dataList = new ArrayList<>();
-		for(File f : file.listFiles()) {
-			if(!f.isHidden()) {
-				ApiData data = new ApiData();
-				data.setName(f.getName());
-				//				data.addRoute(file.getPath());
-				//				data.addRoute(f.getAbsolutePath());
-				data.setRoute(f.getAbsolutePath());
-				System.out.println(f.getAbsolutePath());
-				data.setType(1);
-				helper(f, data);
-				dataList.add(data);
-			}
-		}
-		return dataList;
-	}
-
 	private static String getFileExtension(String fullName) {
 		String fileName = new File(fullName).getName();
 		int dotIndex = fileName.lastIndexOf('.');
 		return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1);
 	}
 
-	private void helper(File file, ApiData pData) {
-
-		for(File f : file.listFiles()) {
-			if(!f.isHidden()) {
-				ApiData data = new ApiData();
-				data.setName(f.getName());
-				data.setRoute(f.getAbsolutePath());
-				System.out.println(f.getAbsolutePath());
-				if(f.isDirectory()) {
-					data.setType(1);
-					helper(f, data);
+	public List<ApiData> getAllApis(String path){
+		
+		List<ApiData> data = new ArrayList<>();
+		ObjectMapper oMapper = new ObjectMapper();
+		try {
+			Yaml yaml = new Yaml();
+			BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
+			LinkedHashMap<String, Object> obj = yaml.load(reader);
+			Map<String, Object> paths = oMapper.convertValue(obj.get("paths"), Map.class);
+			for (Map.Entry<String,Object> pathEntry : paths.entrySet()){
+				Map<String, Object> methods = oMapper.convertValue(pathEntry.getValue(), Map.class);
+				for (Map.Entry<String,Object> methodEntry : methods.entrySet()){
+					Map<String, Object> methodData = oMapper.convertValue(methodEntry.getValue(), Map.class);
+					data.add(new ApiData(methodEntry.getKey(),pathEntry.getKey(), methodData.get("summary").toString())); 
 				}
-				else {
-					System.out.println( getFileExtension(f.getName()) );
-					if(getFileExtension(f.getName()).equals("json")) {
-						data.setType(2);
-					}else if(getFileExtension(f.getName()).equals("yaml") || getFileExtension(f.getName()).equals("yml")){
-						data.setType(3);
-					}
-//					ApiData d = new ApiData("POST", "/get", 4);
-//					data.addChildren(d);
-					List<ApiData> apiList = getAllApis(f.getAbsolutePath());
-					data.setChilds(apiList);
-				}
-				pData.addChildren(data);
-			}
-			//			else {
-			//				if(f.isFile()) {
-			//					pData.addFiles(f.getName());
-			//					System.out.println(f.getName());
-			//				}
-			//			}
+			} 
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
 		}
-		//		return data;
+		return data;
 	}
-
 
 	public Object getJsonFileContent(String path) {
 		JSONParser parser = new JSONParser();
@@ -237,31 +205,5 @@ public class ApiDataService {
 		apiDataRepository.save(userData);
 		return "Successfully added user";
 	}
-
-	
-	
-	public List<ApiData> getAllApis(String path){
-
-        List<ApiData> data = new ArrayList<>();
-        ObjectMapper oMapper = new ObjectMapper();
-        try {
-            Yaml yaml = new Yaml();
-            BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
-            LinkedHashMap<String, Object> obj = yaml.load(reader);
-            Map<String, Object> paths = oMapper.convertValue(obj.get("paths"), Map.class);
-            for (Map.Entry<String,Object> pathEntry : paths.entrySet()){
-                Map<String, Object> methods = oMapper.convertValue(pathEntry.getValue(), Map.class);
-                for (Map.Entry<String,Object> methodEntry : methods.entrySet()){
-                    Map<String, Object> methodData = oMapper.convertValue(methodEntry.getValue(), Map.class);
-                    data.add(new ApiData(methodEntry.getKey(),pathEntry.getKey(), methodData.get("summary").toString())); 
-                }
-            } 
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-        return data;
-    }
-	
-	
 
 }
