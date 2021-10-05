@@ -24,10 +24,12 @@ import rwos.exchange.portal.Entity.ApiPath;
 import rwos.exchange.portal.Entity.FileData;
 import rwos.exchange.portal.Entity.LoginData;
 import rwos.exchange.portal.Entity.LoginSignupResponse;
+import rwos.exchange.portal.Entity.SwaggerApiData;
 import rwos.exchange.portal.Repository.AdminDataRepository;
 import rwos.exchange.portal.Repository.ApiDataRepository;
 import rwos.exchange.portal.Service.AdminDataService;
 import rwos.exchange.portal.Service.ApiDataService;
+import rwos.exchange.portal.Service.SwaggerApiDataService;
 
 //import rwos.exchange.portal.Repository.ApiDataRepository;
 
@@ -43,6 +45,8 @@ public class ApiDataController {
 	ApiDataRepository apiDataRepository;
 	@Autowired
 	AdminDataRepository adminDataRepository;
+	@Autowired
+	SwaggerApiDataService swaggerApiDataService;
 	
 	@Value("${mypath}")
 	private String mypath;
@@ -111,5 +115,10 @@ public class ApiDataController {
 	@PutMapping("/admin")
 	public String updateData(@RequestBody AdminData adminData) {
 		return adminDataService.updateAdminData(adminData);
+	}
+	
+	@PostMapping("/apiContent")
+	public List<SwaggerApiData> getApicontent(@RequestBody ApiPath apiPath) {
+		return swaggerApiDataService.getAllApiContent(apiPath.getPath());
 	}
 }
