@@ -7,9 +7,13 @@ import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import rwos.exchange.portal.Entity.AdminData;
 import rwos.exchange.portal.Entity.ApiData;
 import rwos.exchange.portal.Entity.ApiPath;
 import rwos.exchange.portal.Entity.LoginData;
+import rwos.exchange.portal.Repository.AdminDataRepository;
 import rwos.exchange.portal.Repository.ApiDataRepository;
 
 import java.io.BufferedReader;
@@ -23,7 +27,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+<<<<<<< HEAD
 import java.util.HashSet;
+=======
+import java.util.LinkedHashMap;
+>>>>>>> e77690e0d8dfd14f3f8f1c96a3fdb467cde2e4f6
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -139,6 +147,10 @@ public class ApiDataService {
 					}else if(getFileExtension(f.getName()).equals("yaml") || getFileExtension(f.getName()).equals("yml")){
 						data.setType(3);
 					}
+//					ApiData d = new ApiData("POST", "/get", 4);
+//					data.addChildren(d);
+					List<ApiData> apiList = getAllApis(f.getAbsolutePath());
+					data.setChilds(apiList);
 				}
 				pData.addChildren(data);
 			}
@@ -213,6 +225,34 @@ public class ApiDataService {
 		apiDataRepository.save(userData);
 		return "Successfully added user";
 	}
+<<<<<<< HEAD
 
 
+=======
+	
+	
+	public List<ApiData> getAllApis(String path){
+
+        List<ApiData> data = new ArrayList<>();
+        ObjectMapper oMapper = new ObjectMapper();
+        try {
+            Yaml yaml = new Yaml();
+            BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
+            LinkedHashMap<String, Object> obj = yaml.load(reader);
+            Map<String, Object> paths = oMapper.convertValue(obj.get("paths"), Map.class);
+            for (Map.Entry<String,Object> pathEntry : paths.entrySet()){
+                Map<String, Object> methods = oMapper.convertValue(pathEntry.getValue(), Map.class);
+                for (Map.Entry<String,Object> methodEntry : methods.entrySet()){
+                    Map<String, Object> methodData = oMapper.convertValue(methodEntry.getValue(), Map.class);
+                    data.add(new ApiData(methodEntry.getKey(),pathEntry.getKey(), methodData.get("summary").toString())); 
+                }
+            } 
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        return data;
+    }
+	
+	
+>>>>>>> e77690e0d8dfd14f3f8f1c96a3fdb467cde2e4f6
 }

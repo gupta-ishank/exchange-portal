@@ -18,57 +18,61 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class ApiData {
 	
-	private String name;
-	private String path;
-	private Integer type;
-	private List<ApiData> childs = new ArrayList<>();
+	private String name = "";
+    private String path = "";
+    private int type;
+    private String description;
+    private List<ApiData> childs =  new ArrayList<>();
+    
+    public ApiData() {
+    }
+    public ApiData(String name, String path, String description) {
+        this.name = name;
+        this.path = path;
+        this.description = description;
+    }
 
-	public ApiData() {}
-	
-	public ApiData(String name, String path, Integer type) {
-		this.name = name;
-		this.path = path;
-		this.type = type;
-	}
-
+    public ApiData(String name, String path, int type, List<ApiData> childs) {
+        this.name = name;
+        this.path = path;
+        this.type = type;
+        this.childs = childs;
+    }
+    
+    
 	public String getName() {
 		return name;
 	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public List<ApiData> getChilds() {
-		return childs;
-	}
-
-	public void setChildren(List<ApiData> childs) {
-		this.childs = childs;
-	}
-
-	public void addChildren(ApiData apidata) {
-		this.childs.add(apidata);
-	}
-	
 	public String getRoute() {
 		return path;
 	}
-
 	public void setRoute(String path) {
 		this.path = path;
 	}
-	
-//	public void addRoute(String path) {
-//		this.path += "/" + path;
-//	}
-
-	public Integer getType() {
+	public int getType() {
 		return type;
 	}
-
-	public void setType(Integer type) {
+	public void setType(int type) {
 		this.type = type;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public List<ApiData> getChilds() {
+		return childs;
+	}
+	public void setChilds(List<ApiData> childs) {
+		this.childs = childs;
+	}
+	
+	public void addChildren(ApiData apidata) {
+		this.childs.add(apidata);
 	}
 	
 }
