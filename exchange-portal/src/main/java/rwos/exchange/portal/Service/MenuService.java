@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -50,26 +51,74 @@ public class MenuService {
 
 
     @SuppressWarnings("unchecked")
-    public List<Menu> getAllApis(String path){ // gets all APIs in that particular JSON or YAML file
+    public List<Menu> getAllApis(String path){ // gets all content in that particular JSON or YAML file
 
         List<Menu> data = new ArrayList<>();
         ObjectMapper oMapper = new ObjectMapper();
+        Menu menu = new Menu();
         try {
+            
             Yaml yaml = new Yaml();
             BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
             LinkedHashMap<String, Object> customer = yaml.load(reader);
             reader.close();
+
+            ParseOptions parseOptions = new ParseOptions();
+            parseOptions.setResolve(true);
+            parseOptions.setResolveFully(true);
+            OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
+
+            int it = 0;
             Map<String, Object> paths = oMapper.convertValue(customer.get("paths"), Map.class);
+            
             for (Map.Entry<String,Object> pathEntry : paths.entrySet()){
+        
                 Map<String, Object> methods = oMapper.convertValue(pathEntry.getValue(), Map.class);
-                for (Map.Entry<String,Object> methodEntry : methods.entrySet()){
-                    Map<String, Object> methodData = oMapper.convertValue(methodEntry.getValue(), Map.class);
-                    data.add(new Menu(methodEntry.getKey(),pathEntry.getKey(), methodData.get("summary").toString())); 
+
+                for (Map.Entry<String,Object> methodEntry : methods.entrySet()){ // methods
+
+                    menu.setName(methodEntry.getKey());
+                    menu.setPath(pathEntry.getKey());
+                    String desc = "";
+                    Object data2 = null;
+                    if(methodEntry.getKey().equals("get")){
+                        desc = store.getPaths().get(pathEntry.getKey()).getGet().getSummary();
+                        data2 = nullFieldFilter(store.getPaths().get(pathEntry.getKey())
+                        .getGet().getParameters()
+                        .get(0).getSchema());
+
+                    }
+                    if(methodEntry.getKey().equals("post")){
+                        desc = store.getPaths().get(pathEntry.getKey()).getPost().getSummary();
+                        data2 = nullFieldFilter(store.getPaths().get(pathEntry.getKey())
+                        .getPost().getRequestBody()
+                        .getContent().get("application/json").getSchema());
+                    }
+                    if(methodEntry.getKey().equals("put")){
+                        desc = store.getPaths().get(pathEntry.getKey()).getPut().getSummary();
+                        data2 = nullFieldFilter(store.getPaths().get(pathEntry.getKey())
+                        .getPut().getRequestBody()
+                        .getContent().get("application/json").getSchema());
+                    }
+                    if(methodEntry.getKey().equals("delete")){
+                        desc = store.getPaths().get(pathEntry.getKey()).getDelete().getSummary();
+                        data2 = nullFieldFilter(store.getPaths().get(pathEntry.getKey())
+                        .getDelete().getParameters().get(0).getSchema());
+                    }
+
+                    menu.setDescription(desc);
+                    menu.setResponseData(data2);
+                    // System.out.println(menu.getResponseData());
+                    
                 }
-            } 
+                
+                data.add(menu);
+            }            
+            return data;
+            
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
+            System.err.println(menu.getPath()+ " " + menu.getName());
+        } 
         return data;
     }
 
@@ -93,13 +142,18 @@ public class MenuService {
             parseOptions.setResolve(true);
             parseOptions.setResolveFully(true);
             OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
-            return nullFieldFilter(store.getPaths().get("/pet").getPost().getRequestBody().getContent().get("application/json").getSchema());
+            // return store.getPaths().get("/pet/findByStatus").getGet().getRequestBody().getContent().get("application/json").getSchema();
+            return store.getPaths().get("/pet/findByStatus").getGet().getParameters();
         } catch (Exception e) {
-           
+            
         }
         
         return null;
     }
+
+    //Delete and Get - getParameters;
+    //Put - getRequestBody && getParameters;
+    //post : when {params} passed add getParameters too
 
     public Object nullFieldFilter(Object humaraCode){
 
@@ -110,7 +164,7 @@ public class MenuService {
             return json;
         }
         catch(Exception e) {
-
+            System.out.println("menuservice.java - line 113");
         }
 
         return null;

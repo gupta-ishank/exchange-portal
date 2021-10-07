@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import rwos.exchange.portal.Entity.IndividualMethodPath;
 import rwos.exchange.portal.Entity.Menu;
 import rwos.exchange.portal.Service.MenuService;
 
@@ -33,14 +34,14 @@ public class MenuController {
         return menuService.getAllMenu(folder);
     }
 
-    @PostMapping("")
-    public Object getFileContent(@RequestBody Menu data){
-        return menuService.getFileContent(data.getPath());
-    }
+    // @PostMapping("")
+    // public Object getFileContent(@RequestBody Menu data){
+    //     return menuService.getFileContent(data.getPath());
+    // }
 
     @PostMapping("/apiContent")
-    public Object getContent(@RequestBody Menu data){
-        return menuService.getFileContent(data.getPath());
+    public Object getContent(@RequestBody IndividualMethodPath subData){
+        return menuService.getFileContent(subData.getPath());
     }
     
 }
