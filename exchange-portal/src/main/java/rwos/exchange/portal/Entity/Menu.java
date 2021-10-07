@@ -11,7 +11,14 @@ public class Menu {
     private int type;
     private String description;
     private List<Menu> childs =  new ArrayList<>();
+    private Object data;
     
+    public Object getData() {
+        return data;
+    }
+    public void setData(Object data) {
+        this.data = data;
+    }
     public Menu() {
     }
     public Menu(String name, String path, String description) {

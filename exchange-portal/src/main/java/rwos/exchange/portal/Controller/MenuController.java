@@ -24,8 +24,8 @@ public class MenuController {
     @Autowired
     private MenuService menuService;
     
-    @Value("${app.base.path}")
-    private String myPath;
+   @Value("${app.base.path}")
+   private String myPath;
     
     @GetMapping("")
     public List<Menu> getAllMenu(){
@@ -35,6 +35,11 @@ public class MenuController {
 
     @PostMapping("")
     public Object getFileContent(@RequestBody Menu data){
+        return menuService.getFileContent(data.getPath());
+    }
+
+    @PostMapping("/apiContent")
+    public Object getContent(@RequestBody Menu data){
         return menuService.getFileContent(data.getPath());
     }
     

@@ -45,7 +45,8 @@ public class MenuService {
     }
 
 
-    public List<Menu> getAllApis(String path){
+    @SuppressWarnings("unchecked")
+    public List<Menu> getAllApis(String path){ // gets all APIs in that particular JSON or YAML file
 
         List<Menu> data = new ArrayList<>();
         ObjectMapper oMapper = new ObjectMapper();
@@ -53,6 +54,7 @@ public class MenuService {
             Yaml yaml = new Yaml();
             BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
             LinkedHashMap<String, Object> customer = yaml.load(reader);
+            reader.close();
             Map<String, Object> paths = oMapper.convertValue(customer.get("paths"), Map.class);
             for (Map.Entry<String,Object> pathEntry : paths.entrySet()){
                 Map<String, Object> methods = oMapper.convertValue(pathEntry.getValue(), Map.class);
@@ -67,15 +69,16 @@ public class MenuService {
         return data;
     }
 
-    public Object getFileContent(String path) {
+    public Object getFileContent(String path) { // Returns file contents as json object
         File file = new File(path);
         String data = "";
         if(!file.isDirectory() && !file.isHidden() && file.exists()){
-            BufferedReader reader;
             try {
-                reader = new BufferedReader(new FileReader(file));
-                data = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+                Yaml yaml = new Yaml();
+                BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
+                LinkedHashMap<String, Object> customer = yaml.load(reader);
                 reader.close();
+                return customer;
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -3,7 +3,7 @@ GET http://localhost:8080/
 
 ###
 
-POST http://localhost:8080/
+POST http://localhost:8080/apiContent
 Content-Type: application/json
 
 {
