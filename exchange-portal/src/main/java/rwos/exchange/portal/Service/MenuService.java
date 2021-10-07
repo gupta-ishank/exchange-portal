@@ -11,12 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.ParseOptions;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 
 import rwos.exchange.portal.Entity.Menu;
+import io.swagger.v3.oas.models.OpenAPI;
 
 
 @Service
@@ -70,7 +74,7 @@ public class MenuService {
     }
 
     public Object getFileContent(String path) { // Returns file contents as json object
-        File file = new File(path);
+        /* File file = new File(path);
         String data = "";
         if(!file.isDirectory() && !file.isHidden() && file.exists()){
             try {
@@ -82,7 +86,36 @@ public class MenuService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } */
+
+        try {
+            ParseOptions parseOptions = new ParseOptions();
+            parseOptions.setResolve(true);
+            parseOptions.setResolveFully(true);
+            OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
+            return nullFieldFilter(store.getPaths().get("/pet").getPost().getRequestBody().getContent().get("application/json").getSchema());
+        } catch (Exception e) {
+           
         }
-        return data;
+        
+        return null;
     }
+
+    public Object nullFieldFilter(Object humaraCode){
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();  
+            mapper.setSerializationInclusion(Include.NON_NULL); 
+            String json = mapper.writeValueAsString(humaraCode);
+            return json;
+        }
+        catch(Exception e) {
+
+        }
+
+        return null;
+    }
+
+        
+
 }

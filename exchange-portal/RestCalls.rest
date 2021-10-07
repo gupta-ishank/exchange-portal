@@ -3,14 +3,20 @@ GET http://localhost:8080/
 
 ###
 
+# POST http://localhost:8080/apiContent
+# Content-Type: application/json
+
+# {
+#     "path": "E:\\Test\\Music\\music.yaml",
+
+# }
 POST http://localhost:8080/apiContent
 Content-Type: application/json
 
 {
-    "path": "E:\\Test\\Music\\music.yaml"
+    "path": "/home/ashnove/Documents/NETMEDS-WORK/TEST/Home/openapi.yaml"
 }
-
-###
+##
 
 POST http://localhost:8080/login
 Content-Type: application/json
