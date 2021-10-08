@@ -1,27 +1,21 @@
 package rwos.exchange.portal.Service;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.stereotype.Service;
+
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
-import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.Yaml;
-
 import rwos.exchange.portal.Entity.Menu;
-import io.swagger.v3.oas.models.OpenAPI;
+import rwos.exchange.portal.Entity.YamlParser;
 
 
 @Service
@@ -49,127 +43,62 @@ public class MenuService {
         return menus;
     }
 
-
-    @SuppressWarnings("unchecked")
     public List<Menu> getAllApis(String path){ // gets all content in that particular JSON or YAML file
 
         List<Menu> data = new ArrayList<>();
-        ObjectMapper oMapper = new ObjectMapper();
-        Menu menu = new Menu();
-        try {
-            
-            Yaml yaml = new Yaml();
-            BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
-            LinkedHashMap<String, Object> customer = yaml.load(reader);
-            reader.close();
 
-            ParseOptions parseOptions = new ParseOptions();
-            parseOptions.setResolve(true);
-            parseOptions.setResolveFully(true);
-            OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
+        ParseOptions parseOptions = new ParseOptions();
+        parseOptions.setResolve(true);
+        parseOptions.setResolveFully(true);
+        OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
 
-            int it = 0;
-            Map<String, Object> paths = oMapper.convertValue(customer.get("paths"), Map.class);
-            
-            for (Map.Entry<String,Object> pathEntry : paths.entrySet()){
-        
-                Map<String, Object> methods = oMapper.convertValue(pathEntry.getValue(), Map.class);
-
-                for (Map.Entry<String,Object> methodEntry : methods.entrySet()){ // methods
-
-                    menu.setName(methodEntry.getKey());
-                    menu.setPath(pathEntry.getKey());
-                    String desc = "";
-                    Object data2 = null;
-                    if(methodEntry.getKey().equals("get")){
-                        desc = store.getPaths().get(pathEntry.getKey()).getGet().getSummary();
-                        data2 = nullFieldFilter(store.getPaths().get(pathEntry.getKey())
-                        .getGet().getParameters()
-                        .get(0).getSchema());
-
-                    }
-                    if(methodEntry.getKey().equals("post")){
-                        desc = store.getPaths().get(pathEntry.getKey()).getPost().getSummary();
-                        data2 = nullFieldFilter(store.getPaths().get(pathEntry.getKey())
-                        .getPost().getRequestBody()
-                        .getContent().get("application/json").getSchema());
-                    }
-                    if(methodEntry.getKey().equals("put")){
-                        desc = store.getPaths().get(pathEntry.getKey()).getPut().getSummary();
-                        data2 = nullFieldFilter(store.getPaths().get(pathEntry.getKey())
-                        .getPut().getRequestBody()
-                        .getContent().get("application/json").getSchema());
-                    }
-                    if(methodEntry.getKey().equals("delete")){
-                        desc = store.getPaths().get(pathEntry.getKey()).getDelete().getSummary();
-                        data2 = nullFieldFilter(store.getPaths().get(pathEntry.getKey())
-                        .getDelete().getParameters().get(0).getSchema());
-                    }
-
-                    menu.setDescription(desc);
-                    menu.setResponseData(data2);
-                    // System.out.println(menu.getResponseData());
-                    
-                }
+        store.getPaths().forEach((api, value) ->{
+            value.readOperationsMap().forEach((method, val) ->{
                 
-                data.add(menu);
-            }            
-            return data;
-            
-        } catch (Exception e) {
-            System.err.println(menu.getPath()+ " " + menu.getName());
-        } 
+                
+                try {
+                    Menu menu = new Menu(method.name(), api, val.getSummary());
+                    YamlParser yamlParser = new YamlParser();
+                    if(!Objects.isNull(val.getResponses())){
+                        val.getResponses().forEach((resKey, resVal) ->{
+                            resVal.getContent().forEach((contKey, contVal) ->{
+                                yamlParser.setResponsePayloadDetails(nullFieldFilter(contVal.getSchema()));
+                            });
+                        });
+                    }
+                    if(!Objects.isNull(val.getParameters())){
+                        val.getParameters().forEach(parVal ->{
+                            yamlParser.setResponsePayloadDetails(nullFieldFilter(parVal.getSchema()));
+                            
+                        });
+                    }
+                    if(!Objects.isNull(val.getRequestBody())){
+                        val.getRequestBody().getContent().forEach((contentKey, contentVal) ->{
+                            yamlParser
+                            .setRequestPayloadDetails(nullFieldFilter(contentVal.getSchema()));
+                        });
+                    }
+                    menu.setSchema(yamlParser);
+                    data.add(menu);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }   
+            });
+        });
         return data;
     }
 
-    public Object getFileContent(String path) { // Returns file contents as json object
-        /* File file = new File(path);
-        String data = "";
-        if(!file.isDirectory() && !file.isHidden() && file.exists()){
-            try {
-                Yaml yaml = new Yaml();
-                BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
-                LinkedHashMap<String, Object> customer = yaml.load(reader);
-                reader.close();
-                return customer;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } */
 
-        try {
-            ParseOptions parseOptions = new ParseOptions();
-            parseOptions.setResolve(true);
-            parseOptions.setResolveFully(true);
-            OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
-            // return store.getPaths().get("/pet/findByStatus").getGet().getRequestBody().getContent().get("application/json").getSchema();
-            return store.getPaths().get("/pet/findByStatus").getGet().getParameters();
-        } catch (Exception e) {
-            
-        }
-        
-        return null;
-    }
-
-    //Delete and Get - getParameters;
-    //Put - getRequestBody && getParameters;
-    //post : when {params} passed add getParameters too
-
-    public Object nullFieldFilter(Object humaraCode){
-
+    public Object nullFieldFilter(Object schema){
         try {
             ObjectMapper mapper = new ObjectMapper();  
             mapper.setSerializationInclusion(Include.NON_NULL); 
-            String json = mapper.writeValueAsString(humaraCode);
-            return json;
+            String filteredSchema = mapper.writeValueAsString(schema);
+            return new ObjectMapper().readTree(filteredSchema);
         }
         catch(Exception e) {
-            System.out.println("menuservice.java - line 113");
+            System.out.println(e.getMessage());
         }
-
         return null;
     }
-
-        
-
 }

@@ -11,7 +11,7 @@ public class Menu {
     private int type;
     private String description;
     private List<Menu> childs =  new ArrayList<>();
-    private Object responseData;
+    private Object schema;
     
     
     public Menu() {
@@ -22,7 +22,8 @@ public class Menu {
         this.description = description;
     }
 
-    public Menu(String name, String path, int type, List<Menu> childs) {
+    
+	public Menu(String name, String path, int type, List<Menu> childs) {
         this.name = name;
         this.path = path;
         this.type = type;
@@ -68,13 +69,10 @@ public class Menu {
         this.childs = childs;
     }
 
-    public Object setResponseData() {
-        return responseData;
+    public void setSchema(Object schema) {
+        this.schema = schema;
     }
-    public void setResponseData(Object responseData) {
-        this.responseData = responseData;
-    }
-    public Object getResponseData() {
-        return responseData;
+    public Object getSchema() {
+        return schema;
     }
 }
