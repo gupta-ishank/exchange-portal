@@ -35,7 +35,9 @@ public class MenuService {
         List<Menu> menus = new ArrayList<>();
         if(folder.isDirectory()){
             for(File file: folder.listFiles(filter)){
-                menus.add(new Menu(file.getName(),file.getAbsolutePath(),getType(file), getAllMenu(file)));    
+                List<Menu> subDirectory = getAllMenu(file);
+                if(subDirectory.isEmpty() == false)
+                    menus.add(new Menu(file.getName(),file.getAbsolutePath(),getType(file), subDirectory));    
             }
         }else{
             menus.addAll(getAllApis(folder.getAbsolutePath()));
