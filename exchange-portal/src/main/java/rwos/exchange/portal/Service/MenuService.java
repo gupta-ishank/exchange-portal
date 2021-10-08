@@ -31,6 +31,7 @@ public class MenuService {
         else return 3;
     }
 
+    // returns folder structure along with file method with schemas (excluding the empty folders) and 
     public List<Menu> getAllMenu(File folder){
         List<Menu> menus = new ArrayList<>();
         if(folder.isDirectory()){
@@ -45,7 +46,8 @@ public class MenuService {
         return menus;
     }
 
-    public List<Menu> getAllApis(String path){ // gets all content in that particular JSON or YAML file
+    //return file methods with their schemas in a particular JSON or YAML file
+    public List<Menu> getAllApis(String path){ //parameter: file path
 
         List<Menu> data = new ArrayList<>();
 
@@ -90,7 +92,7 @@ public class MenuService {
         return data;
     }
 
-
+    //filters the null fields from the schema
     public Object nullFieldFilter(Object schema){
         try {
             ObjectMapper mapper = new ObjectMapper();  
