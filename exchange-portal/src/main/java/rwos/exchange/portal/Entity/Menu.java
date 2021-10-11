@@ -10,6 +10,7 @@ public class Menu {
     private String path = "";
     private int type;
     private String description;
+    private String subDescription;
     private List<Menu> childs =  new ArrayList<>();
     private Object schema;
     
@@ -74,5 +75,13 @@ public class Menu {
     }
     public Object getSchema() {
         return schema;
+    }
+
+    public String getSubDescription() {
+        return subDescription;
+    }
+
+    public void setSubDescription(String subDescription) {
+        this.subDescription = subDescription;
     }
 }

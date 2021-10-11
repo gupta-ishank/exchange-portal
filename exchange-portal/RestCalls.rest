@@ -3,11 +3,11 @@ GET http://localhost:8080/
 
 ###
 
-POST http://localhost:8080/apiContent
+POST http://localhost:8080/
 Content-Type: application/json
 
 {
-    "path": "E:\\Test\\Music\\openapi.yaml"
+    "description": "E:\\Test\\Music\\openapi.yaml"
 
 }
 
