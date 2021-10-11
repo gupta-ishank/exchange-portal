@@ -7,11 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import rwos.exchange.portal.Entity.Menu;
 import rwos.exchange.portal.Service.MenuService;
 
@@ -31,11 +28,6 @@ public class MenuController {
     public List<Menu> getAllMenu(){
         final File folder = new File(myPath);
         return menuService.getAllMenu(folder);
-    }
-
-    @PostMapping("")
-    public Object testing(@RequestBody Menu data){
-        return menuService.getData("E:\\Test\\Music\\openapi.yaml");
     }
     
 }

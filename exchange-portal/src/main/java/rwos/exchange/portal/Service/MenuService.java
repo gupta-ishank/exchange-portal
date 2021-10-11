@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.stereotype.Service;
@@ -88,7 +87,7 @@ public class MenuService {
                             yamlParser.setParameterPayload(filterRedundedData(parVal
                             .getSchema().getProperties(), parVal.getSchema().getType().toString()));
                             yamlParser
-                                .setResponsePayloadDetails(formatTableData(parVal
+                                .setParameterPayloadDetails(formatTableData(parVal
                                 .getSchema().getProperties(), -1));
                             
                         });
@@ -101,51 +100,19 @@ public class MenuService {
                             .setRequestPayload(filterRedundedData(contentVal
                             .getSchema().getProperties(), contentVal.getSchema().getType().toString()));
                             yamlParser
-                                .setResponsePayloadDetails(formatTableData(contentVal
+                                .setRequestPayloadDetails(formatTableData(contentVal
                                 .getSchema().getProperties(), -1));
                         });
                     }
                     menu.setSchema(yamlParser);
                     data.add(menu);
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    System.out.println(method.name() + " " + e.getMessage());
                 }   
             });
         });
         return data;
     }
-    
-    public Object getData(String path) {
-    	try {
-    		ParseOptions parseOptions = new ParseOptions();
-    		parseOptions.setResolve(true);
-    		parseOptions.setResolveFully(true);
-    		OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
-
-    		//return path;
-    		return store.getPaths().get("/pet").getPost().getRequestBody().getContent().get("application/json").getSchema();
-
-    	}
-    	catch(Exception e) {
-    		System.out.println(e);
-    	}
-    	return null;
-    }
-
-    //filters the null fields from the schema
-    public Object nullFieldFilter(Object schema){
-        try {
-            ObjectMapper mapper = new ObjectMapper();  
-            mapper.setSerializationInclusion(Include.NON_NULL); 
-            String filteredSchema = mapper.writeValueAsString(schema);
-            return new ObjectMapper().readTree(filteredSchema);
-        }
-        catch(Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return null;
-    }
-    
     
     //
     @SuppressWarnings("unchecked")
@@ -183,7 +150,7 @@ public class MenuService {
     		 		
     	}
     	catch(Exception e) {
-    		System.out.println(e.getMessage());
+    		System.out.println("Inside redundant "+e.getMessage());
     	}
     	return null;
     }

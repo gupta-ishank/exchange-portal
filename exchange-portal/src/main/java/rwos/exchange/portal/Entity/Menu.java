@@ -8,9 +8,9 @@ import java.util.List;
 public class Menu {
     private String name = "";
     private String path = "";
-    private int type;
-    private String description;
-    private String subDescription;
+    private int type = 0;
+    private String description = "";
+    private String subDescription = "";
     private List<Menu> childs =  new ArrayList<>();
     private Object schema;
     

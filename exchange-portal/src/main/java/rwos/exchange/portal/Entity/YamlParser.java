@@ -2,12 +2,12 @@ package rwos.exchange.portal.Entity;
 
 public class YamlParser {
 	
-	private Object requestPayload;
-	private Object requestPayloadDetails;
-	private Object parameterPayload;
-	private Object parameterPayloadDetails;
-	private Object responsePayload;
-	private Object responsePayloadDetails;
+	private Object requestPayload = "";
+	private Object requestPayloadDetails = "";
+	private Object parameterPayload = "";
+	private Object parameterPayloadDetails = "";
+	private Object responsePayload = "";
+	private Object responsePayloadDetails = "";
 	public YamlParser() {
 		
 	}
