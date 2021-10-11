@@ -249,6 +249,7 @@ public class ApiDataService {
             BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
             LinkedHashMap<String, Object> obj = yaml.load(reader);
             Map<String, Object> paths = oMapper.convertValue(obj.get("paths"), Map.class);
+            reader.close();
             for (Map.Entry<String,Object> pathEntry : paths.entrySet()){
                 Map<String, Object> methods = oMapper.convertValue(pathEntry.getValue(), Map.class);
                 for (Map.Entry<String,Object> methodEntry : methods.entrySet()){
