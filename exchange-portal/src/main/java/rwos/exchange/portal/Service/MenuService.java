@@ -51,6 +51,7 @@ public class MenuService {
     }
 
     //return file methods with their schemas in a particular JSON or YAML file
+    @SuppressWarnings("unchecked")
     public List<Menu> getAllApis(String path){ //parameter: file path
 
         List<Menu> data = new ArrayList<>();
@@ -73,10 +74,10 @@ public class MenuService {
                         	menu.setSubDescription(resVal.getDescription());
                             resVal.getContent().forEach((contKey, contVal) ->{
                                 yamlParser
-                                .setResponsePayload(filterRedundedData(contVal.getSchema().getProperties(), contVal.getSchema().getType().toString()));
+                                .setResponsePayload(filterRedundedData(contVal.getSchema().getProperties(), contVal.getSchema().getType()));
                                 yamlParser
                                 .setResponsePayloadDetails(formatTableData(contVal
-                                .getSchema().getProperties(), -1));
+                                .getSchema().getProperties(), -1, contVal.getSchema().getRequired()));
                             });
                         });
                     }
@@ -85,10 +86,10 @@ public class MenuService {
                         val.getParameters().forEach(parVal ->{
                         	menu.setSubDescription(parVal.getDescription());
                             yamlParser.setParameterPayload(filterRedundedData(parVal
-                            .getSchema().getProperties(), parVal.getSchema().getType().toString()));
+                            .getSchema().getProperties(), parVal.getSchema().getType()));
                             yamlParser
                                 .setParameterPayloadDetails(formatTableData(parVal
-                                .getSchema().getProperties(), -1));
+                                .getSchema().getProperties(), -1, parVal.getSchema().getRequired()));
                             
                         });
                     }
@@ -98,16 +99,16 @@ public class MenuService {
                         val.getRequestBody().getContent().forEach((contentKey, contentVal) ->{                	
                             yamlParser
                             .setRequestPayload(filterRedundedData(contentVal
-                            .getSchema().getProperties(), contentVal.getSchema().getType().toString()));
+                            .getSchema().getProperties(), contentVal.getSchema().getType()));
                             yamlParser
                                 .setRequestPayloadDetails(formatTableData(contentVal
-                                .getSchema().getProperties(), -1));
+                                .getSchema().getProperties(), -1, contentVal.getSchema().getRequired()));
                         });
                     }
                     menu.setSchema(yamlParser);
                     data.add(menu);
                 } catch (Exception e) {
-                    System.out.println(method.name() + " " + e.getMessage());
+                    
                 }   
             });
         });
@@ -150,12 +151,12 @@ public class MenuService {
     		 		
     	}
     	catch(Exception e) {
-    		System.out.println("Inside redundant "+e.getMessage());
+    		
     	}
     	return null;
     }
     @SuppressWarnings("unchecked")
-    public List<Object> formatTableData(Object obj, int pId) {
+    public List<Object> formatTableData(Object obj, int pId, List<Object> requiredFileds) {
 
         List<Object> tableData = new ArrayList<>();
     	try {
@@ -167,10 +168,10 @@ public class MenuService {
                     table.put("Level", ++id);
                     table.put("parentId", pId);
                     table.put("parameter", key);
+                    table.put("Mendate", requiredFileds.contains(key));
                     if(mapper.convertValue(value, Map.class).get("type").equals("object")){
                         table.put("Type", "Object");
-                        tableData.addAll(formatTableData(mapper.convertValue(value, Map.class).get("properties"), id));
-                        
+                        tableData.addAll(formatTableData(mapper.convertValue(value, Map.class).get("properties"), id, requiredFileds)); 
                     }else{
                         table.put("Type", mapper.convertValue(value, Map.class).get("type"));
                     }
@@ -181,7 +182,7 @@ public class MenuService {
 	 		
     	}
     	catch(Exception e) {
-    		System.out.println("inside "+e.getMessage());
+    		
     	}
     	return tableData;
     }
