@@ -35,6 +35,11 @@ public class MenuService {
         else return 3;
     }
 
+    public List<Object> isNull(List<Object> data){
+        if(Objects.isNull(data)) return new ArrayList<>();
+        else return data;
+    }
+
     // returns folder structure along with file method with schemas (excluding the empty folders) and 
     public List<Menu> getAllMenu(File folder){
         List<Menu> menus = new ArrayList<>();
@@ -63,8 +68,7 @@ public class MenuService {
 
         store.getPaths().forEach((api, value) ->{
             value.readOperationsMap().forEach((method, val) ->{
-                
-
+            
                 try {
                     Menu menu = new Menu(method.name(), api, val.getSummary());
                     YamlParser yamlParser = new YamlParser();
@@ -74,10 +78,10 @@ public class MenuService {
                         	menu.setSubDescription(resVal.getDescription());
                             resVal.getContent().forEach((contKey, contVal) ->{
                                 yamlParser
-                                .setResponsePayload(filterRedundedData(contVal.getSchema().getProperties(), contVal.getSchema().getType()));
+                                .setResponsePayload(filterRedundedData(contVal.getSchema().getProperties(), "object"));
                                 yamlParser
                                 .setResponsePayloadDetails(formatTableData(contVal
-                                .getSchema().getProperties(), -1, contVal.getSchema().getRequired()));
+                                .getSchema().getProperties(), -1, isNull(contVal.getSchema().getRequired())));
                             });
                         });
                     }
@@ -86,10 +90,10 @@ public class MenuService {
                         val.getParameters().forEach(parVal ->{
                         	menu.setSubDescription(parVal.getDescription());
                             yamlParser.setParameterPayload(filterRedundedData(parVal
-                            .getSchema().getProperties(), parVal.getSchema().getType()));
+                            .getSchema().getProperties(), "object"));
                             yamlParser
                                 .setParameterPayloadDetails(formatTableData(parVal
-                                .getSchema().getProperties(), -1, parVal.getSchema().getRequired()));
+                                .getSchema().getProperties(), -1, isNull(parVal.getSchema().getRequired())));
                             
                         });
                     }
@@ -99,16 +103,16 @@ public class MenuService {
                         val.getRequestBody().getContent().forEach((contentKey, contentVal) ->{                	
                             yamlParser
                             .setRequestPayload(filterRedundedData(contentVal
-                            .getSchema().getProperties(), contentVal.getSchema().getType()));
+                            .getSchema().getProperties(), "object"));
                             yamlParser
                                 .setRequestPayloadDetails(formatTableData(contentVal
-                                .getSchema().getProperties(), -1, contentVal.getSchema().getRequired()));
+                                .getSchema().getProperties(), -1, isNull(contentVal.getSchema().getRequired())));
                         });
                     }
                     menu.setSchema(yamlParser);
                     data.add(menu);
                 } catch (Exception e) {
-                    
+                    System.out.println("excemtion in" + method.name());
                 }   
             });
         });
@@ -151,7 +155,7 @@ public class MenuService {
     		 		
     	}
     	catch(Exception e) {
-    		
+    		System.out.println("Exception in Object creation");
     	}
     	return null;
     }
@@ -182,8 +186,18 @@ public class MenuService {
 	 		
     	}
     	catch(Exception e) {
-    		
+    		System.out.println("exception in table formation");
     	}
     	return tableData;
+    }
+
+    public Object testing(String path) {
+
+        ParseOptions parseOptions = new ParseOptions();
+        parseOptions.setResolve(true);
+        parseOptions.setResolveFully(true);
+        OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
+
+        return filterRedundedData(store.getPaths().get("/pet/{petId}").getPost().getRequestBody().getContent().get("application/x-www-form-urlencoded").getSchema().getProperties(), "object");
     }
 }

@@ -7,7 +7,7 @@ POST http://localhost:8080/
 Content-Type: application/json
 
 {
-    "description": "E:\\Test\\Music\\openapi.yaml"
+    "path": "D:\\Workspace\\Test\\Swagger\\openapi.yaml"
 
 }
 
