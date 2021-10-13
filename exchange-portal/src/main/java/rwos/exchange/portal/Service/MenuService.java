@@ -174,7 +174,7 @@ public class MenuService {
                     table.put("parameter", key);
                     table.put("Mendate", requiredFileds.contains(key));
                     table.put("Description", Objects.isNull(mapper.convertValue(value, Map.class)
-                    .get("description")) ? "" : mapper.convertValue(value, Map.class)
+                    .get("description")) ? "-" : mapper.convertValue(value, Map.class)
                     .get("description"));
                     if(mapper.convertValue(value, Map.class).get("type").equals("object")){
                         table.put("Type", "Object");
