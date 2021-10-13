@@ -17,7 +17,6 @@ public class MappingController {
     @Autowired
     private RoleService roleService;
 
-    
     @Autowired
     private FilePathService filePathService;
     
@@ -31,7 +30,6 @@ public class MappingController {
     public void mapRoleAndFile(@PathVariable String filePath, @PathVariable String role){
         filePathService.addFilePath(filePath);
     }
-    
 
 
 }

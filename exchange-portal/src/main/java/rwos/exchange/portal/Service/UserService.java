@@ -1,5 +1,8 @@
 package rwos.exchange.portal.Service;
 
+import java.util.List;
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +15,15 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepository;
 
-	public User loginUser(User user) {
+	public List<User> loginUser(User user) {
 		return userRepository.findByUserNameAndPassword(user.getUserName(), user.getPassword());
 	}
 
 	public User signupUser(User user) {
-		return userRepository.save(user);
+		if(Objects.isNull(userRepository.findByEmail(user.getEmail())))
+			return userRepository.save(user);
+		else 
+			return null;
 	}
 
 
