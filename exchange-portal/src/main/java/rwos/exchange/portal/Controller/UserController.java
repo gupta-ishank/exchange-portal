@@ -1,5 +1,7 @@
 package rwos.exchange.portal.Controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +21,7 @@ public class UserController {
 	private UserService userService;
 	
 	@PostMapping("/login")
-	public User loginUser(@RequestBody User user) {
+	public List<User> loginUser(@RequestBody User user) {
 		return userService.loginUser(user);
 	}
 	

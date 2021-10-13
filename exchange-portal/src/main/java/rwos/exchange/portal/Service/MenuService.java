@@ -173,10 +173,14 @@ public class MenuService {
                     table.put("parentId", pId);
                     table.put("parameter", key);
                     table.put("Mendate", requiredFileds.contains(key));
+                    table.put("Description", Objects.isNull(mapper.convertValue(value, Map.class)
+                    .get("description")) ? "" : mapper.convertValue(value, Map.class)
+                    .get("description"));
                     if(mapper.convertValue(value, Map.class).get("type").equals("object")){
                         table.put("Type", "Object");
                         tableData.addAll(formatTableData(mapper.convertValue(value, Map.class).get("properties"), id, requiredFileds)); 
                     }else{
+
                         table.put("Type", mapper.convertValue(value, Map.class).get("type"));
                     }
                     tableData.add(table);
