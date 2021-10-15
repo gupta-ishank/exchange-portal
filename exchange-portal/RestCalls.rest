@@ -7,8 +7,7 @@ POST http://localhost:8080/
 Content-Type: application/json
 
 {
-    "path": "D:\\Git\\Test\\Swagger\\openapi.yaml"
-
+    "path": "D:\\Netmeds\\Test\\Swagger\\compartment.yaml"
 }
 
 ####

@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.stereotype.Service;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import rwos.exchange.portal.Entity.Menu;
@@ -72,7 +74,7 @@ public class MenuService {
                 try {
                     Menu menu = new Menu(method.name(), api, val.getSummary());
                     YamlParser yamlParser = new YamlParser();
-                    if(!Objects.isNull(val.getResponses())){
+                    /* if(!Objects.isNull(val.getResponses())){
                         id = 100;
                         val.getResponses().forEach((resKey, resVal) ->{
                         	menu.setSubDescription(resVal.getDescription());
@@ -84,30 +86,28 @@ public class MenuService {
                                 .getSchema().getProperties(), -1, isNull(contVal.getSchema().getRequired())));
                             });
                         });
-                    }
+                    } */
                     if(!Objects.isNull(val.getParameters())){
                         id = 100;
+                        Map<String, String> parameter = new HashMap<>();
                         val.getParameters().forEach(parVal ->{
-                        	menu.setSubDescription(parVal.getDescription());
-                            yamlParser.setParameterPayload(filterRedundedData(parVal
-                            .getSchema().getProperties(), "object"));
-                            yamlParser
-                                .setParameterPayloadDetails(formatTableData(parVal
-                                .getSchema().getProperties(), -1, isNull(parVal.getSchema().getRequired())));
-                            
+                            parameter.put(parVal.getName(), parVal.getSchema().getType());
                         });
+                        yamlParser.setParameterPayload(parameter);
                     }
                     if(!Objects.isNull(val.getRequestBody())){
                         id = 100;
                     	menu.setSubDescription(val.getRequestBody().getDescription());
-                        val.getRequestBody().getContent().forEach((contentKey, contentVal) ->{                	
-                            yamlParser
+                        MediaType contentVal = val.getRequestBody()
+                        .getContent().get("application/json");
+                        yamlParser
+                            .setRequestPlyloadExample(contentVal.getSchema().getExample());
+                        yamlParser
                             .setRequestPayload(filterRedundedData(contentVal
                             .getSchema().getProperties(), "object"));
-                            yamlParser
-                                .setRequestPayloadDetails(formatTableData(contentVal
-                                .getSchema().getProperties(), -1, isNull(contentVal.getSchema().getRequired())));
-                        });
+                        yamlParser
+                            .setRequestPayloadDetails(formatTableData(contentVal
+                            .getSchema().getProperties(), -1, isNull(contentVal.getSchema().getRequired())));
                     }
                     menu.setSchema(yamlParser);
                     data.add(menu);
@@ -132,9 +132,9 @@ public class MenuService {
                     objMap.forEach((key, value)->{
                         if(mapper.convertValue(value, Map.class).get("type").equals("object")){
                             map.put(key, filterRedundedData(mapper.convertValue(value, Map.class).get("properties"), "object")) ;
-                        }else if(mapper.convertValue(value, Map.class).get("type").equals("array")){
+                        }/* else if(mapper.convertValue(value, Map.class).get("type").equals("array")){
                             map.put(key, filterRedundedData(mapper.convertValue(value, Map.class).get("items"), "array"));
-                        }else{
+                        } */else{
                             map.put(key, mapper.convertValue(value, Map.class).get("type"));
                         }
                     });    		
@@ -202,6 +202,19 @@ public class MenuService {
         parseOptions.setResolveFully(true);
         OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
 
-        return filterRedundedData(store.getPaths().get("/pet/{petId}").getPost().getRequestBody().getContent().get("application/x-www-form-urlencoded").getSchema().getProperties(), "object");
+        return nullFieldFilter( store.getPaths().get("/items/{itemId}/iteminventoryhistory").getGet().getSecurity());
+    }
+
+    public Object nullFieldFilter(Object schema){
+        try {
+            ObjectMapper mapper = new ObjectMapper();  
+            mapper.setSerializationInclusion(Include.NON_NULL); 
+            String filteredSchema = mapper.writeValueAsString(schema);
+            return new ObjectMapper().readTree(filteredSchema);
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 }

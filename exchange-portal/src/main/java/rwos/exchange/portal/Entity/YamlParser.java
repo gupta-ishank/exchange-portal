@@ -3,10 +3,13 @@ package rwos.exchange.portal.Entity;
 public class YamlParser {
 	
 	private Object requestPayload = "";
+	private Object requestPlyloadExample = "";
 	private Object requestPayloadDetails = "";
 	private Object parameterPayload = "";
+	private Object parameterPayloadExample = "";
 	private Object parameterPayloadDetails = "";
 	private Object responsePayload = "";
+	private Object responsePayloadExample = "";
 	private Object responsePayloadDetails = "";
 	public YamlParser() {
 		
@@ -46,6 +49,24 @@ public class YamlParser {
 	}
 	public void setResponsePayloadDetails(Object responsePayloadDetails) {
 		this.responsePayloadDetails = responsePayloadDetails;
+	}
+	public Object getRequestPlyloadExample() {
+		return requestPlyloadExample;
+	}
+	public void setRequestPlyloadExample(Object requestPlyloadExample) {
+		this.requestPlyloadExample = requestPlyloadExample;
+	}
+	public Object getParameterPayloadExample() {
+		return parameterPayloadExample;
+	}
+	public void setParameterPayloadExample(Object parameterPayloadExample) {
+		this.parameterPayloadExample = parameterPayloadExample;
+	}
+	public Object getResponsePayloadExample() {
+		return responsePayloadExample;
+	}
+	public void setResponsePayloadExample(Object responsePayloadExample) {
+		this.responsePayloadExample = responsePayloadExample;
 	}
 	
 	
