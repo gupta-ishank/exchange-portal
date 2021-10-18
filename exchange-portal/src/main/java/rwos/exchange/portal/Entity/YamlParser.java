@@ -1,16 +1,17 @@
 package rwos.exchange.portal.Entity;
 
+
+
 public class YamlParser {
 	
 	private Object requestPayload = "";
-	private Object requestPlyloadExample = "";
+	private Object requestPayloadExample = "";
 	private Object requestPayloadDetails = "";
 	private Object parameterPayload = "";
 	private Object parameterPayloadExample = "";
 	private Object parameterPayloadDetails = "";
-	private Object responsePayload = "";
 	private Object responsePayloadExample = "";
-	private Object responsePayloadDetails = "";
+	private PappuPassHogya responsePayload;
 	public YamlParser() {
 		
 	}
@@ -41,20 +42,15 @@ public class YamlParser {
 	public Object getResponsePayload() {
 		return responsePayload;
 	}
-	public void setResponsePayload(Object responsePayload) {
+	public void setResponsePayload(PappuPassHogya responsePayload) {
 		this.responsePayload = responsePayload;
 	}
-	public Object getResponsePayloadDetails() {
-		return responsePayloadDetails;
+	
+	public Object getRequestPayloadExample() {
+		return requestPayloadExample;
 	}
-	public void setResponsePayloadDetails(Object responsePayloadDetails) {
-		this.responsePayloadDetails = responsePayloadDetails;
-	}
-	public Object getRequestPlyloadExample() {
-		return requestPlyloadExample;
-	}
-	public void setRequestPlyloadExample(Object requestPlyloadExample) {
-		this.requestPlyloadExample = requestPlyloadExample;
+	public void setRequestPayloadExample(Object requestPayloadExample) {
+		this.requestPayloadExample = requestPayloadExample;
 	}
 	public Object getParameterPayloadExample() {
 		return parameterPayloadExample;

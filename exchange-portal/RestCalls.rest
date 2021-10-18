@@ -7,7 +7,7 @@ POST http://localhost:8080/
 Content-Type: application/json
 
 {
-    "path": "D:\\Netmeds\\Test\\Swagger\\compartment.yaml"
+    "path": "D:\\Netmeds\\Test\\Swagger\\nma adaptor.json"
 }
 
 ####
