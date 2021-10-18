@@ -8,12 +8,10 @@ import java.util.List;
 public class Menu {
     private String name = "";
     private String path = "";
-    private int type;
-    private String description;
-    private Object subDescription;
-    
-	
-	private List<Menu> childs =  new ArrayList<>();
+    private int type = 0;
+    private String description = "";
+    private String subDescription = "";
+    private List<Menu> childs =  new ArrayList<>();
     private Object schema;
     
     
@@ -78,13 +76,12 @@ public class Menu {
     public Object getSchema() {
         return schema;
     }
-    
-    public void setSubDescription(Object subDescription) {
-		this.subDescription = subDescription;
-	}
-    
-    public Object getSubDescription() {
-		return subDescription;
-	}
-    
+
+    public String getSubDescription() {
+        return subDescription;
+    }
+
+    public void setSubDescription(String subDescription) {
+        this.subDescription = subDescription;
+    }
 }

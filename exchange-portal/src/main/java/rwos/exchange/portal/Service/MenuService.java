@@ -1,4 +1,4 @@
-package rwos.exchange.portal.Service;
+ package rwos.exchange.portal.Service;
 
 import java.io.File;
 
@@ -9,14 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.stereotype.Service;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import rwos.exchange.portal.Entity.Menu;
+import rwos.exchange.portal.Entity.PappuPassHogya;
 import rwos.exchange.portal.Entity.YamlParser;
 
 
@@ -37,6 +40,10 @@ public class MenuService {
 
     public List<Object> isNull(List<Object> data){
         if(Objects.isNull(data)) return new ArrayList<>();
+        else return data;
+    }
+    public String isNull(String data){
+        if(Objects.isNull(data)) return "";
         else return data;
     }
 
@@ -68,46 +75,83 @@ public class MenuService {
 
         store.getPaths().forEach((api, value) ->{
             value.readOperationsMap().forEach((method, val) ->{
-            
+                
                 try {
                     Menu menu = new Menu(method.name(), api, val.getSummary());
+                    menu.setSubDescription(val.getDescription());
                     YamlParser yamlParser = new YamlParser();
                     if(!Objects.isNull(val.getResponses())){
                         id = 100;
                         val.getResponses().forEach((resKey, resVal) ->{
-                        	menu.setSubDescription(resVal.getDescription());
-                            resVal.getContent().forEach((contKey, contVal) ->{
-                                yamlParser
-                                .setResponsePayload(filterRedundedData(contVal.getSchema().getProperties(), "object"));
-                                yamlParser
-                                .setResponsePayloadDetails(formatTableData(contVal
-                                .getSchema().getProperties(), -1, isNull(contVal.getSchema().getRequired())));
-                            });
+                            Map<String, Object> res = new HashMap<>();
+                            PappuPassHogya response = new PappuPassHogya();
+                            if(resKey.equalsIgnoreCase("200")){
+                                if(resVal.getContent() != null){
+                                    resVal.getContent().forEach((contKey, contVal) ->{
+                                        res.put(resKey, filterRedundedData(contVal.getSchema()
+                                        .getProperties(), isNull(contVal
+                                        .getSchema().getType())));
+                                        response.setSuccess(res);
+                                        response.setSuccessDetails(formatTableData2(contVal.getSchema().getProperties(), -1, 
+                                        isNull(contVal.getSchema().getRequired()),
+                                        isNull(contVal.getSchema().getType())));
+                                    });                                
+                                } 
+                            }else{
+                                if(resVal.getContent() != null){
+                                    resVal.getContent().forEach((contKey, contVal) ->{
+                                        res.put(resKey, filterRedundedData(contVal.getSchema()
+                                        .getProperties(), isNull(contVal
+                                        .getSchema().getType())));
+                                        response.setFailure(res);
+                                        response.setFailureDetails(formatTableData2(contVal.getSchema().getProperties(), -1, 
+                                        isNull(contVal.getSchema().getRequired()),
+                                        isNull(contVal.getSchema().getType())));
+                                    });                                  
+                                }
+                            }                    
+                            yamlParser.setResponsePayload(response);
                         });
+
                     }
                     if(!Objects.isNull(val.getParameters())){
                         id = 100;
+                        List<Object> parameterDetails = new ArrayList<>();
+                        Map<String, String> parameter = new HashMap<>();
                         val.getParameters().forEach(parVal ->{
-                        	menu.setSubDescription(parVal.getDescription());
-                            yamlParser.setParameterPayload(filterRedundedData(parVal
-                            .getSchema().getProperties(), "object"));
-                            yamlParser
-                                .setParameterPayloadDetails(formatTableData(parVal
-                                .getSchema().getProperties(), -1, isNull(parVal.getSchema().getRequired())));
-                            
+                            Map<String, Object> parameterMap = new HashMap<>();
+                            parameter.put(parVal.getName(), parVal.getSchema().getType());
+                            parameterMap.put("Level", ++id);
+                            parameterMap.put("description", parVal.getDescription() == null ? "-" : parVal.getDescription());
+                            parameterMap.put("parentId", -1);
+                            parameterMap.put("Mendate", parVal.getRequired());
+                            parameterMap.put("parameter", parVal.getName());
+                            parameterDetails.add(parameterMap); 
                         });
+                        yamlParser.setParameterPayloadDetails(parameterDetails);
+                        yamlParser.setParameterPayload(parameter);
                     }
                     if(!Objects.isNull(val.getRequestBody())){
                         id = 100;
-                    	menu.setSubDescription(val.getRequestBody().getDescription());
-                        val.getRequestBody().getContent().forEach((contentKey, contentVal) ->{                	
-                            yamlParser
+                        MediaType contentVal = val.getRequestBody()
+                        .getContent().get("application/json");
+                        yamlParser
+                            .setRequestPayloadExample(contentVal.getSchema().getExample());
+                        yamlParser
                             .setRequestPayload(filterRedundedData(contentVal
-                            .getSchema().getProperties(), "object"));
-                            yamlParser
-                                .setRequestPayloadDetails(formatTableData(contentVal
-                                .getSchema().getProperties(), -1, isNull(contentVal.getSchema().getRequired())));
-                        });
+                            .getSchema(), isNull(contentVal
+                            .getSchema().getType())));
+                        yamlParser
+                            .setRequestPayloadDetails(formatTableData2(contentVal
+                            .getSchema().getProperties(), -1, isNull(contentVal.getSchema().getRequired()),
+                            isNull(contentVal.getSchema().getType())));
+                    }
+                    if(!Objects.isNull(val.getSecurity())){
+                        id = 100;
+//                        MediaType contentVal = val.getSecurity()
+//                        .getContent().get("application/json");
+                        yamlParser
+                            .setSecurity(val.getSecurity());
                     }
                     menu.setSchema(yamlParser);
                     data.add(menu);
@@ -133,18 +177,21 @@ public class MenuService {
                         if(mapper.convertValue(value, Map.class).get("type").equals("object")){
                             map.put(key, filterRedundedData(mapper.convertValue(value, Map.class).get("properties"), "object")) ;
                         }else if(mapper.convertValue(value, Map.class).get("type").equals("array")){
-                            map.put(key, filterRedundedData(mapper.convertValue(value, Map.class).get("items"), "array"));
-                        }else{
+                            // if(!Objects.isNull(mapper.convertValue(value, Map.class).get("items")))
+                                map.put(key, filterRedundedData(mapper.convertValue(value, Map.class).get("items"), "array"));
+                        } else{
                             map.put(key, mapper.convertValue(value, Map.class).get("type"));
                         }
                     });    		
                 }
                 return map;   
-            }else{
+            }else if(type.equals("array")){
                 List<Object> list = new ArrayList<>();
                 if(!Objects.isNull(objMap)) {
-                    if(objMap.get("type").toString().equals("object")){
+                    if(objMap.get("type").equals("object") && !Objects.isNull(objMap.get("properties"))){
                         list.add(filterRedundedData(objMap.get("properties"), "object"));
+                    }else if(objMap.get("type").equals("array")){
+                        list.add(filterRedundedData(objMap.get("items"), "array"));
                     }else{
                         list.add(objMap.get("type"));
                     }		
@@ -155,41 +202,61 @@ public class MenuService {
     		 		
     	}
     	catch(Exception e) {
-    		System.out.println("Exception in Object creation");
+    		
     	}
     	return null;
     }
+
+
     @SuppressWarnings("unchecked")
-    public List<Object> formatTableData(Object obj, int pId, List<Object> requiredFileds) {
+    public List<Object> formatTableData2(Object obj, int pId, List<Object> requiredFileds, String type) {
 
         List<Object> tableData = new ArrayList<>();
     	try {
     		ObjectMapper mapper = new ObjectMapper();
     		Map<String, Object> objMap = mapper.convertValue(obj, Map.class);
-            if(!Objects.isNull(objMap)) {
-                objMap.forEach((key, value)->{
-                    Map<String, Object> table = new HashMap<>();
-                    table.put("Level", ++id);
-                    table.put("parentId", pId);
-                    table.put("parameter", key);
-                    table.put("Mendate", requiredFileds.contains(key));
-                    if(mapper.convertValue(value, Map.class).get("type").equals("object")){
-                        table.put("Type", "Object");
-                        tableData.addAll(formatTableData(mapper.convertValue(value, Map.class).get("properties"), id, requiredFileds)); 
-                    }else{
-                        table.put("Type", mapper.convertValue(value, Map.class).get("type"));
-                    }
-                    tableData.add(table);
-                    
-                });    		
+            if(type.equals("object")){
+                if(!Objects.isNull(objMap)) {
+                    objMap.forEach((key, value)->{
+
+                        Map<String, Object> table = new HashMap<>();
+                        table.put("Level", ++id);
+                        table.put("parentId", pId);
+                        table.put("parameter", key);
+                        table.put("Mendate", requiredFileds.contains(key));
+                        table.put("Description", Objects.isNull(mapper.convertValue(value, Map.class)
+                        .get("description")) ? "-" : mapper.convertValue(value, Map.class)
+                        .get("description"));
+
+                        if(mapper.convertValue(value, Map.class).get("type").equals("object")){
+                            tableData.addAll(formatTableData2(mapper.convertValue(value, Map.class).get("properties"), id, requiredFileds, "object")); 
+                        }else if(mapper.convertValue(value, Map.class).get("type").equals("array")){
+                            tableData.addAll(formatTableData2(mapper.convertValue(value, Map.class).get("items"), id, requiredFileds, "array")); 
+                        } else{
+                            table.put("Type", mapper.convertValue(value, Map.class).get("type"));
+                        }
+                        tableData.add(table);
+                    });    		
+                }
+                  
+            }else if(type.equals("array")){
+                if(!Objects.isNull(objMap)) {  
+                    if(objMap.get("type").equals("object") && !Objects.isNull(objMap.get("properties"))){
+                        tableData.addAll( formatTableData2(objMap.get("properties"),id, requiredFileds, "object"));
+                    }else if(objMap.get("type").equals("array")){
+                        tableData.addAll( formatTableData2(objMap.get("items"),id, requiredFileds, "array"));
+                    }		
+                }
             }
-	 		
+    		
+    		 		
     	}
     	catch(Exception e) {
-    		System.out.println("exception in table formation");
+    		
     	}
-    	return tableData;
+    	return tableData; 
     }
+
 
     public Object testing(String path) {
 
@@ -198,6 +265,21 @@ public class MenuService {
         parseOptions.setResolveFully(true);
         OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
 
-        return filterRedundedData(store.getPaths().get("/pet/{petId}").getPost().getRequestBody().getContent().get("application/x-www-form-urlencoded").getSchema().getProperties(), "object");
+        // return nullFieldFilter( store.getPaths().get("/mplace/selleritems").getPost().getResponses().get("200").getContent().get("*/*").getSchema());
+        // return nullFieldFilter( store.getPaths().get("/mplace/selleritems").getPost().getRequestBody().getContent().get("application/json").getSchema()) ;
+         return formatTableData2( nullFieldFilter( store.getPaths().get("/mplace/selleritems").getPost().getSecurity()),id, new ArrayList<>(), "array") ;
+    }
+
+    public Object nullFieldFilter(Object schema){
+        try {
+            ObjectMapper mapper = new ObjectMapper();  
+            mapper.setSerializationInclusion(Include.NON_NULL); 
+            String filteredSchema = mapper.writeValueAsString(schema);
+            return new ObjectMapper().readTree(filteredSchema);
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 }

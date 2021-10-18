@@ -22,8 +22,7 @@ public class UserService {
 	public User signupUser(User user) {
 		if(Objects.isNull(userRepository.findByEmail(user.getEmail())))
 			return userRepository.save(user);
-		else 
-			return null;
+		else return null;
 	}
 
 
