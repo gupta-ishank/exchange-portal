@@ -1,0 +1,33 @@
+
+
+GET http://localhost:8080/
+
+
+###
+
+POST http://localhost:8080/
+Content-Type: application/json
+
+{
+    "path": "D:\\Netmeds\\Test\\Swagger\\nma adaptor.json"
+}
+
+####
+POST http://localhost:8080/apiContent
+Content-Type: application/json
+
+{
+    "path": "/home/ashnove/Documents/NETMEDS-WORK/TEST/Home/openapi.yaml"
+ 
+}
+####
+
+POST http://localhost:8080/signup
+Content-Type: application/json
+
+{
+    "userName": "joynath766",
+    "password": "password",
+    "email": "joynath657@gmail.com",
+    "confirmPassword": "password"
+}
