@@ -83,10 +83,10 @@ public class MenuService {
         // System.out.println(store.getPaths());
 
         store.getPaths().forEach((api, value) -> {
-            // System.out.println("forEach path " + value.get);
+            System.out.println(api);
             value.readOperationsMap().forEach((method, val) -> {
 
-                System.out.println(method);
+                System.out.println("-->" + method);
                 Map<String, Object> validation = new HashMap<>();
                 try {
                     Menu menu = new Menu(method.name(), api, val.getSummary());
@@ -167,6 +167,7 @@ public class MenuService {
 
                         yamlParser.setParameterPayloadDetails(parameterDetails);
                         yamlParser.setParameterPayload(parameter);
+                        yamlParser.setValidation(validation);
                     }
                     if (!Objects.isNull(val.getRequestBody())) {
                         id = 100;
@@ -187,7 +188,7 @@ public class MenuService {
                         yamlParser.setSecurity(val.getSecurity());
                     }
                     menu.setSchema(yamlParser);
-                    menu.setValidation(validation);
+                    // menu.setValidation(validation);
                     data.add(menu);
                 } catch (Exception e) {
                     System.out.println("exception in " + method.name() + "|" + e.getMessage());

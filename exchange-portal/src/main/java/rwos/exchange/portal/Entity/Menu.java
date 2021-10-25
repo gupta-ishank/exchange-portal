@@ -10,17 +10,7 @@ public class Menu {
     private String description = "";
     private String subDescription = "";
     private List<Menu> childs = new ArrayList<>();
-
-    public Object getValidation() {
-        return validation;
-    }
-
-    public void setValidation(Object validation) {
-        this.validation = validation;
-    }
-
     private Object schema;
-    private Object validation;
 
     public Menu() {
     }
