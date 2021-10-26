@@ -107,7 +107,9 @@ public class MenuService {
                                         res.put(resKey, filterRedundedData(contVal.getSchema().getProperties(),
                                                 isNull(contVal.getSchema().getType())));
                                         response.setSuccess(res);
-                                        response.setSuccessDetails(contVal.getSchema().getProperties());
+                                        response.setSuccessDetails(formatTableData2(contVal.getSchema().getProperties(),
+                                                -1, isNull(contVal.getSchema().getRequired()),
+                                                isNull(contVal.getSchema().getType())));
                                     });
                                 }
                             } else {
@@ -196,11 +198,11 @@ public class MenuService {
                             // FilterRedundantData()
                             yamlParser.setRequestPayload(filterRedundedData(contentVal.getSchema(),
                                     isNull(contentVal.getSchema().getType())));
-                            yamlParser.setRequestPayloadDetails(formatTableData2(contentVal.getSchema().getProperties(),
+                            yamlParser.setRequestPayloadDetails(formatTableData2(contentVal.getSchema(),
                                     -1, isNull(contentVal.getSchema().getRequired()),
                                     isNull(contentVal.getSchema().getType())));
                             yamlParser.setRequestValidation(
-                                    formatRequestValidationTableData(contentVal.getSchema().getProperties(), -1,
+                                    formatRequestValidationTableData(contentVal.getSchema(), -1,
                                             isNull(contentVal.getSchema().getRequired()),
                                             isNull(contentVal.getSchema().getType())));
                         });
@@ -321,13 +323,10 @@ public class MenuService {
                                         mapper.convertValue(value, Map.class).get("items"), id, requiredFileds,
                                         "array"));
                             } else {
-                                // if( mapper.convertValue(value, Map.class).containsKey("type") )
-                                System.out.println(
-                                        key + "maxLength: " + mapper.convertValue(value, Map.class).get("maxLength"));
-                                table.put("enum", mapper.convertValue(value, Map.class).get("enum"));
-                                table.put("maxLength", mapper.convertValue(value, Map.class).get("maxLength"));
-                                table.put("minLength", mapper.convertValue(value, Map.class).get("minLength"));
-                                table.put("pattern", mapper.convertValue(value, Map.class).get("pattern"));
+                                table.put("enum", mapper.convertValue(value, Map.class).get("enum") == null ? "-":  mapper.convertValue(value, Map.class).get("enum"));
+                                table.put("maxLength", mapper.convertValue(value, Map.class).get("maxLength") == null ? "-": mapper.convertValue(value, Map.class).get("maxLength") );
+                                table.put("minLength", mapper.convertValue(value, Map.class).get("minLength") == null ? "-" : mapper.convertValue(value, Map.class).get("minLength"));
+                                table.put("pattern", mapper.convertValue(value, Map.class).get("pattern") == null ? "-" : mapper.convertValue(value, Map.class).get("pattern"));
                             }
                         } catch (Exception e) {
                             System.out.println("Mapper If line: 283 |--> " + e.getMessage());
@@ -441,50 +440,12 @@ public class MenuService {
         // return nullFieldFilter(
         // store.getPaths().get("/mplace/selleritems").getPost().getRequestBody().getContent().get("application/json").getSchema())
         // ;
-        Map<String, Object> map = new HashMap<>();
-        ObjectMapper mapper = new ObjectMapper();
-        Object obj = store.getPaths().get("/mplace/selleritems").getPost().getRequestBody().getContent().get("*/*")
-                .getSchema();
-        Map<String, Object> objMap = mapper.convertValue(obj, Map.class);
-
-        // Object itemVal = objMap.get("items");
-        // Map<String, Object> item = mapper.convertValue(itemVal, Map.class);
-        // Object propVal = item.get("properties");
-        // Map<String, Object> property = mapper.convertValue(propVal, Map.class);
-        // property.forEach((x, y)->{
-        // System.out.println(x + " " + y.get("maxLength"));
-        // });
-        // objMap.forEach((x, y) -> {
-        // if (x.equals("items")) {
-
-        // Map<String, Object> item = mapper.convertValue(y, Map.class);
-        // item.forEach((a, b) -> {
-        // if (a.equals("properties")) {
-
-        // Map<String, Object> property = mapper.convertValue(b, Map.class);
-        // property.forEach((prop, propVal) -> {
-        // // Map<String, String> propValMap = mapper.convertValue(propVal, Map.class);
-        // // System.out.println(propVal);
-        // // propValMap.forEach((key, value) -> {
-        // // System.out.println("-->" + key);
-        // // });
-
-        // // propVal.get("maxLength");
-
-        // });
-
-        // }
-
-        // });
-
-        // }
-        // });
-
-        return nullFieldFilter(store.getPaths().get("/mplace/selleritems").getPost().getRequestBody().getContent()
-                .get("*/*").getSchema());
-        // return
-        // formatTableData2(nullFieldFilter(store.getPaths().get("/mplace/selleritems").getPost().getRequestBody()
-        // .getContent().get("*/*").getSchema()), id, new ArrayList<>(), "array");
+        
+        
+        //return nullFieldFilter(store.getPaths().get("/mplace/selleritems").getPost().getRequestBody().getContent());
+        return
+        formatTableData2(nullFieldFilter(store.getPaths().get("/mplace/selleritems").getPost().getRequestBody()
+        .getContent().get("application/json").getSchema()), id, new ArrayList<>(), "array");
     }
 
     public Object nullFieldFilter(Object schema) {

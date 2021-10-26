@@ -31,3 +31,13 @@ Content-Type: application/json
     "email": "joynath657@gmail.com",
     "confirmPassword": "password"
 }
+
+
+###
+
+POST  http://localhost:8080/
+Content-Type: application/json
+
+{
+    "path": "D:\\Netmeds\\Test\\Swagger\\nma adaptor.json"
+}
