@@ -5,11 +5,11 @@ GET http://localhost:8080/
 
 ###
 
-POST http://localhost:8080/
+POST  http://localhost:8080/
 Content-Type: application/json
 
 {
-    "path": "D:\\Netmeds\\Test\\Swagger\\nma adaptor.json"
+    "path": "/home/ashnove/Documents/NETMEDS-WORK/ExchangePortal/TEST/Nutty Crunch/Nutty_Crunch.json"
 }
 
 ####

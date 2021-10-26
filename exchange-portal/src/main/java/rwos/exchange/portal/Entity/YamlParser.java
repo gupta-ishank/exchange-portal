@@ -11,18 +11,18 @@ public class YamlParser {
     private Object responsePayloadExample = "";
     private Object security = "";
     private PappuPassHogya responsePayload;
-    private Object validation;
+    private Object requestValidation;
 
     public YamlParser() {
 
     }
 
-    public Object getValidation() {
-        return validation;
+    public Object getRequestValidation() {
+        return requestValidation;
     }
 
-    public void setValidation(Object validation) {
-        this.validation = validation;
+    public void setRequestValidation(Object requestValidation) {
+        this.requestValidation = requestValidation;
     }
 
     public Object getRequestPayload() {
