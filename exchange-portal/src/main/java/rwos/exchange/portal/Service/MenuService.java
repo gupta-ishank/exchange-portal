@@ -133,55 +133,45 @@ public class MenuService {
                     if (!Objects.isNull(val.getParameters())) {
                         id = 100;
                         List<Object> parameterDetails = new ArrayList<>();
+                        List<Object> parameterValidation = new ArrayList<>();
                         Map<String, String> parameter = new HashMap<>();
 
                         val.getParameters().forEach(parVal -> {
                             Map<String, Object> parameterMap = new HashMap<>();
-                            // Map<String, String> eachValidation = new HashMap<>();
+                            Map<String, Object> eachValidation = new HashMap<>();
                             parameter.put(parVal.getName(), parVal.getSchema().getType());
+                            parameterMap.put("Type", parVal.getSchema().getType());
                             parameterMap.put("Level", ++id);
-                            parameterMap.put("description",
+                            parameterMap.put("Description",
                                     parVal.getDescription() == null ? "-" : parVal.getDescription());
+                            parameterMap.put("parameterType", parVal.getIn());
                             parameterMap.put("parentId", -1);
-                            parameterMap.put("Mandate", parVal.getRequired());
+                            parameterMap.put("Mendate", parVal.getRequired() == null ? false : true);
                             parameterMap.put("parameter", parVal.getName());
                             parameterDetails.add(parameterMap);
 
-                            // if (method.toString().equals("POST")) {
-                            // val.getParameters().forEach(x -> {
+                            
+                            eachValidation.put("Level", ++id);
+                            eachValidation.put("parameter", parVal.getName());
+                            eachValidation.put("parentId", -1);
+                            eachValidation.put("pattern", parVal.getSchema().getPattern() == null ? "-" : parVal.getSchema().getPattern());
+                            eachValidation.put("enum", ((parVal.getSchema().getEnum() == null) ? "-"
+                            : parVal.getSchema().getEnum().toString()));
+                            eachValidation.put("maxLength", ((parVal.getSchema().getMaxLength() == null)
+                            ? "-"
+                            : parVal.getSchema().getMaxLength().toString()));
+                            eachValidation.put("minLength", ((parVal.getSchema().getMinLength() == null)
+                            ? "-"
+                            : parVal.getSchema().getMinLength().toString()));
 
-                            // });
-                            // }
-
-                            // can get the pattern here
-                            // System.out.print(method);
-                            // System.out.println(
-                            // " - pattern ---> " + parVal.getName() + " | " +
-                            // parVal.getSchema().getPattern());
-
-                            // if (parVal.getSchema().getEnum() != null) {
-                            // System.out.print(method);
-                            // System.out.println(
-                            // " - enum ---> " + parVal.getName() + " | " + parVal.getSchema().getEnum());
-                            // }
-                            // eachValidation.put("pattern", parVal.getSchema().getPattern());
-                            // eachValidation.put("enum", ((parVal.getSchema().getEnum() == null) ? null
-                            // : parVal.getSchema().getEnum().toString()));
-                            // eachValidation.put("maxLength", ((parVal.getSchema().getMaxLength() == null)
-                            // ? null
-                            // : parVal.getSchema().getMaxLength().toString()));
-                            // eachValidation.put("minLength", ((parVal.getSchema().getMinLength() == null)
-                            // ? null
-                            // : parVal.getSchema().getMinLength().toString()));
-
-                            // validation.put(parVal.getName(), eachValidation);
-                            // }
-                        });
+                            parameterValidation.add(eachValidation);
+                            }
+                        );
 
                         yamlParser.setParameterPayloadDetails(parameterDetails);
                         yamlParser.setParameterPayload(parameter);
-                        // yamlParser.setValidation(formatTableData2(validation, -1, new ArrayList<>(),
-                        // "array"));
+                        yamlParser.setParameterValidation(parameterValidation);
+                        
                     }
                     if (!Objects.isNull(val.getRequestBody())) {
                         id = 100;

@@ -5,6 +5,9 @@ public class YamlParser {
     private Object requestPayload = "";
     private Object requestPayloadExample = "";
     private Object requestPayloadDetails = "";
+    private Object parameterValidation = "";
+    
+
     private Object parameterPayload = "";
     private Object parameterPayloadExample = "";
     private Object parameterPayloadDetails = "";
@@ -95,6 +98,14 @@ public class YamlParser {
 
     public void setSecurity(Object security) {
         this.security = security;
+    }
+
+    public Object getParameterValidation() {
+        return parameterValidation;
+    }
+
+    public void setParameterValidation(Object parameterValidation) {
+        this.parameterValidation = parameterValidation;
     }
 
 }
