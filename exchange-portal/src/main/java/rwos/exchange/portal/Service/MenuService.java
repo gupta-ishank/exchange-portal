@@ -1,7 +1,6 @@
 package rwos.exchange.portal.Service;
 
 import java.io.File;
-
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,12 +14,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import rwos.exchange.portal.Entity.Menu;
 import rwos.exchange.portal.Entity.PappuPassHogya;
-import rwos.exchange.portal.Entity.ToMap;
 import rwos.exchange.portal.Entity.YamlParser;
 
 @Service
@@ -104,10 +101,10 @@ public class MenuService {
                                     resVal.getContent().forEach((contKey, contVal) -> {
                                         // res.put(resKey, contVal.getSchema().getProperties()); //without
                                         // FilterRedundantData()
-                                        res.put(resKey, filterRedundedData(contVal.getSchema().getProperties(),
+                                        res.put(resKey, getSchema(contVal.getSchema().getProperties(),
                                                 isNull(contVal.getSchema().getType())));
                                         response.setSuccess(res);
-                                        response.setSuccessDetails(formatTableData2(contVal.getSchema().getProperties(),
+                                        response.setSuccessDetails(formTableFromSchema(contVal.getSchema().getProperties(),
                                                 -1, isNull(contVal.getSchema().getRequired()),
                                                 isNull(contVal.getSchema().getType())));
                                     });
@@ -117,10 +114,10 @@ public class MenuService {
                                     resVal.getContent().forEach((contKey, contVal) -> {
                                         // res.put(resKey, contVal.getSchema().getProperties()); //without
                                         // FilterRedundantData()
-                                        res.put(resKey, filterRedundedData(contVal.getSchema().getProperties(),
+                                        res.put(resKey, getSchema(contVal.getSchema().getProperties(),
                                                 isNull(contVal.getSchema().getType())));
                                         response.setFailure(res);
-                                        response.setFailureDetails(formatTableData2(contVal.getSchema().getProperties(),
+                                        response.setFailureDetails(formTableFromSchema(contVal.getSchema().getProperties(),
                                                 -1, isNull(contVal.getSchema().getRequired()),
                                                 isNull(contVal.getSchema().getType())));
                                     });
@@ -178,42 +175,29 @@ public class MenuService {
                         // MediaType contentVal =
                         // val.getRequestBody().getContent().get("application/json");
                         val.getRequestBody().getContent().forEach((contentKey, contentVal) -> {
-                            // System.out.println("contentVal: " + contentVal.getSchema());
-
-                            // System.out.println(contentVal.getSchema().getName() + " | MaxLength: "
-                            // + contentVal.getSchema().getMaxLength());
-
                             yamlParser.setRequestPayloadExample(contentVal.getSchema().getExample());
-                            // yamlParser.setRequestPayload((contentVal.getSchema())); //without
-                            // FilterRedundantData()
-                            yamlParser.setRequestPayload(filterRedundedData(contentVal.getSchema(),
+
+                            yamlParser.setRequestPayload(getSchema(nullFieldFilter(contentVal.getSchema()),
                                     isNull(contentVal.getSchema().getType())));
-                            yamlParser.setRequestPayloadDetails(formatTableData2(contentVal.getSchema(),
+
+                            yamlParser.setRequestPayloadDetails(formTableFromSchema(nullFieldFilter(contentVal.getSchema()),
                                     -1, isNull(contentVal.getSchema().getRequired()),
                                     isNull(contentVal.getSchema().getType())));
+                                    
                             yamlParser.setRequestValidation(
-                                    formatRequestValidationTableData(contentVal.getSchema(), -1,
+                                    formTableFromSchema(nullFieldFilter(contentVal.getSchema()), -1,
                                             isNull(contentVal.getSchema().getRequired()),
                                             isNull(contentVal.getSchema().getType())));
                         });
 
-                        // if (contentVal != null) {
-
-                        // }
 
                     }
                     if (!Objects.isNull(val.getSecurity())) {
-                        id = 100;
-                        // MediaType contentVal = val.getSecurity()
-                        // .getContent().get("application/json");
                         yamlParser.setSecurity(val.getSecurity());
                     }
                     menu.setSchema(yamlParser);
-                    // menu.setValidation(validation);
                     data.add(menu);
                 } catch (Exception e) {
-                    // System.out.println("exception in " + method.name() + "|" + e.getMessage());
-                    // System.out.println(val.getRequestBody().getContent());
                 }
             });
         });
@@ -222,7 +206,7 @@ public class MenuService {
 
     //
     @SuppressWarnings("unchecked")
-    public Object filterRedundedData(Object obj, String type) {
+    public Object getSchema(Object obj, String type) {
 
         try {
 
@@ -242,17 +226,16 @@ public class MenuService {
                                 typeOK = Objects.isNull(flag.get("type"));
 
                             if (!typeOK && !flagOK && flag.get("type").equals("object")) {
-                                // System.out.println(" mapper testing: -> "
-                                // + Objects.isNull(mapper.convertValue(value, Map.class).get("properties")));
-                                map.put(key, filterRedundedData(flag.get("properties"), "object"));
+                                
+                                map.put(key, getSchema(flag.get("properties"), "object"));
                             } else if (!flagOK && !typeOK && flag.get("type").equals("array")) {
-                                map.put(key, filterRedundedData(flag.get("items"), "array"));
+                                map.put(key, getSchema(flag.get("items"), "array"));
                             } else {
                                 if (!flagOK)
                                     map.put(key, flag.get("type"));
                             }
                         } catch (Exception e) {
-                            // System.out.println("Mapper Dusra If |--> " + e.getMessage());
+                            
                         }
 
                     });
@@ -263,9 +246,9 @@ public class MenuService {
                 try {
                     if (!Objects.isNull(objMap) && !Objects.isNull(objMap.get("type"))) {
                         if (objMap.get("type").equals("object") && !Objects.isNull(objMap.get("properties"))) {
-                            list.add(filterRedundedData(objMap.get("properties"), "object"));
+                            list.add(getSchema(objMap.get("properties"), "object"));
                         } else if (objMap.get("type").equals("array")) {
-                            list.add(filterRedundedData(objMap.get("items"), "array"));
+                            list.add(getSchema(objMap.get("items"), "array"));
                         } else {
                             list.add(objMap.get("type"));
                         }
@@ -283,8 +266,7 @@ public class MenuService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Object> formatRequestValidationTableData(Object obj, int pId, List<Object> requiredFileds,
-            String type) {
+    public List<Object> formTableFromSchema(Object obj, int pId, List<Object> requiredFileds, String type) {
 
         List<Object> tableData = new ArrayList<>();
         try {
@@ -295,103 +277,26 @@ public class MenuService {
                     objMap.forEach((key, value) -> {
 
                         Map<String, Object> table = new HashMap<>();
-                        try {
-                            table.put("Level", ++id);
-                            table.put("parentId", pId);
-                            table.put("parameter", key);
-                        } catch (Exception e) {
-                            // System.out.println("Mapper Initialization |--> " + e.getMessage());
-
-                        }
-                        try {
-                            if (mapper.convertValue(value, Map.class).get("type").equals("object")) {
-                                tableData.addAll(formatRequestValidationTableData(
-                                        mapper.convertValue(value, Map.class).get("properties"), id, requiredFileds,
-                                        "object"));
-                            } else if (mapper.convertValue(value, Map.class).get("type").equals("array")) {
-                                tableData.addAll(formatRequestValidationTableData(
-                                        mapper.convertValue(value, Map.class).get("items"), id, requiredFileds,
-                                        "array"));
-                            } else {
-                                table.put("enum", mapper.convertValue(value, Map.class).get("enum") == null ? "-":  mapper.convertValue(value, Map.class).get("enum"));
-                                table.put("maxLength", mapper.convertValue(value, Map.class).get("maxLength") == null ? "-": mapper.convertValue(value, Map.class).get("maxLength") );
-                                table.put("minLength", mapper.convertValue(value, Map.class).get("minLength") == null ? "-" : mapper.convertValue(value, Map.class).get("minLength"));
-                                table.put("pattern", mapper.convertValue(value, Map.class).get("pattern") == null ? "-" : mapper.convertValue(value, Map.class).get("pattern"));
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Mapper If line: 283 |--> " + e.getMessage());
-                        }
-                        tableData.add(table);
-                    });
-                }
-
-            } else if (type.equals("array")) {
-                List<Object> list = new ArrayList<>();
-                try {
-                    if (!Objects.isNull(objMap) && !Objects.isNull(objMap.get("type"))) {
-                        if (objMap.get("type").equals("object") && !Objects.isNull(objMap.get("properties"))) {
-                            tableData.addAll(formatRequestValidationTableData(objMap.get("properties"), id,
-                                    requiredFileds, "object"));
-                        } else if (objMap.get("type").equals("array")) {
+                        table.put("Level", ++id);
+                        table.put("parentId", pId);
+                        table.put("parameter", key);
+                        table.put("Mendate", requiredFileds.contains(key));
+                        table.put("Description",
+                                Objects.isNull(mapper.convertValue(value, Map.class).get("description")) ? "-"
+                                        : mapper.convertValue(value, Map.class).get("description"));
+                        if (mapper.convertValue(value, Map.class).get("type").equals("object")) {
                             tableData.addAll(
-                                    formatRequestValidationTableData(objMap.get("items"), id, requiredFileds, "array"));
-                        }
-                        // else {
-                        // list.add(objMap.get("enum"));
-                        // list.add(objMap.get("maxLength"));
-                        // list.add(objMap.get("minLength"));
-                        // list.add(objMap.get("pattern"));
-                        // }
-                    }
-                } catch (Exception e) {
-                    // System.out.println("Mapper Else If |--> " + e.getMessage());
-                }
-                // return list;
-            }
-
-        } catch (Exception e) {
-            // System.out.println("Exception at Formating Table | " + e.getMessage());
-        }
-        return tableData;
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Object> formatTableData2(Object obj, int pId, List<Object> requiredFileds, String type) {
-
-        List<Object> tableData = new ArrayList<>();
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> objMap = mapper.convertValue(obj, Map.class);
-            if (type.equals("object")) {
-                if (!Objects.isNull(objMap)) {
-                    objMap.forEach((key, value) -> {
-
-                        Map<String, Object> table = new HashMap<>();
-                        try {
-                            table.put("Level", ++id);
-                            table.put("parentId", pId);
-                            table.put("parameter", key);
-                            table.put("Mendate", requiredFileds.contains(key));
-                            table.put("Description",
-                                    Objects.isNull(mapper.convertValue(value, Map.class).get("description")) ? "-"
-                                            : mapper.convertValue(value, Map.class).get("description"));
-                        } catch (Exception e) {
-                            System.out.println("Mapper Initialization |--> " + e.getMessage());
-
-                        }
-                        try {
-                            if (mapper.convertValue(value, Map.class).get("type").equals("object")) {
-                                tableData.addAll(
-                                        formatTableData2(mapper.convertValue(value, Map.class).get("properties"), id,
-                                                requiredFileds, "object"));
-                            } else if (mapper.convertValue(value, Map.class).get("type").equals("array")) {
-                                tableData.addAll(formatTableData2(mapper.convertValue(value, Map.class).get("items"),
-                                        id, requiredFileds, "array"));
-                            } else {
-                                table.put("Type", mapper.convertValue(value, Map.class).get("type"));
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Mapper If line: 283 |--> " + e.getMessage());
+                                    formTableFromSchema(mapper.convertValue(value, Map.class).get("properties"), id,
+                                            requiredFileds, "object"));
+                        } else if (mapper.convertValue(value, Map.class).get("type").equals("array")) {
+                            tableData.addAll(formTableFromSchema(mapper.convertValue(value, Map.class).get("items"),
+                                    id, requiredFileds, "array"));
+                        } else {
+                            table.put("Type", mapper.convertValue(value, Map.class).get("type"));
+                            table.put("enum", mapper.convertValue(value, Map.class).get("enum") == null ? "-":  mapper.convertValue(value, Map.class).get("enum"));
+                            table.put("maxLength", mapper.convertValue(value, Map.class).get("maxLength") == null ? "-": mapper.convertValue(value, Map.class).get("maxLength") );
+                            table.put("minLength", mapper.convertValue(value, Map.class).get("minLength") == null ? "-" : mapper.convertValue(value, Map.class).get("minLength"));
+                            table.put("pattern", mapper.convertValue(value, Map.class).get("pattern") == null ? "-" : mapper.convertValue(value, Map.class).get("pattern"));
                         }
                         tableData.add(table);
                     });
@@ -399,16 +304,12 @@ public class MenuService {
 
             } else if (type.equals("array")) {
 
-                try {
-                    if (!Objects.isNull(objMap) && !Objects.isNull(objMap.get("type"))) {
-                        if (objMap.get("type").equals("object") && !Objects.isNull(objMap.get("properties"))) {
-                            tableData.addAll(formatTableData2(objMap.get("properties"), id, requiredFileds, "object"));
-                        } else if (objMap.get("type").equals("array")) {
-                            tableData.addAll(formatTableData2(objMap.get("items"), id, requiredFileds, "array"));
-                        }
+                if (!Objects.isNull(objMap) && !Objects.isNull(objMap.get("type"))) {
+                    if (objMap.get("type").equals("object") && !Objects.isNull(objMap.get("properties"))) {
+                        tableData.addAll(formTableFromSchema(objMap.get("properties"), id, requiredFileds, "object"));
+                    } else if (objMap.get("type").equals("array")) {
+                        tableData.addAll(formTableFromSchema(objMap.get("items"), id, requiredFileds, "array"));
                     }
-                } catch (Exception e) {
-                    System.out.println("Mapper Else If |--> " + e.getMessage());
                 }
             }
 
@@ -432,10 +333,10 @@ public class MenuService {
         // ;
         
         
-        //return nullFieldFilter(store.getPaths().get("/mplace/selleritems").getPost().getRequestBody().getContent());
-        return
-        formatTableData2(nullFieldFilter(store.getPaths().get("/mplace/selleritems").getPost().getRequestBody()
-        .getContent().get("application/json").getSchema()), id, new ArrayList<>(), "array");
+        return nullFieldFilter(store.getPaths().get("/purchase/orders").getPost().getResponses().get("200").getContent().get("*/*").getSchema());
+        // return
+        // getSchema(nullFieldFilter(store.getPaths().get("/purchase/orders").getPost().getRequestBody()
+        // .getContent().get("application/json").getSchema()), "array");
     }
 
     public Object nullFieldFilter(Object schema) {
