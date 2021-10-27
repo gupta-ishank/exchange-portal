@@ -17,7 +17,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import rwos.exchange.portal.Entity.Menu;
-import rwos.exchange.portal.Entity.PappuPassHogya;
+import rwos.exchange.portal.Entity.ResponseStatus;
 import rwos.exchange.portal.Entity.YamlParser;
 
 @Service
@@ -90,7 +90,7 @@ public class MenuService {
                         id = 100;
                         val.getResponses().forEach((resKey, resVal) -> {
                             Map<String, Object> res = new HashMap<>();
-                            PappuPassHogya response = new PappuPassHogya();
+                            ResponseStatus response = new ResponseStatus();
                             if (resKey.equalsIgnoreCase("200")) {
                                 if (resVal.getContent() != null) {
                                     resVal.getContent().forEach((contKey, contVal) -> {

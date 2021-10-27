@@ -6,14 +6,13 @@ public class YamlParser {
     private Object requestPayloadExample = "";
     private Object requestPayloadDetails = "";
     private Object parameterValidation = "";
-    
 
     private Object parameterPayload = "";
     private Object parameterPayloadExample = "";
     private Object parameterPayloadDetails = "";
     private Object responsePayloadExample = "";
     private Object security = "";
-    private PappuPassHogya responsePayload;
+    private ResponseStatus responsePayload;
     private Object requestValidation;
 
     public YamlParser() {
@@ -64,7 +63,7 @@ public class YamlParser {
         return responsePayload;
     }
 
-    public void setResponsePayload(PappuPassHogya responsePayload) {
+    public void setResponsePayload(ResponseStatus responsePayload) {
         this.responsePayload = responsePayload;
     }
 
