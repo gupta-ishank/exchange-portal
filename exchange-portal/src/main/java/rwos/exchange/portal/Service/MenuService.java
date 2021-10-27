@@ -78,14 +78,9 @@ public class MenuService {
         parseOptions.setResolveFully(true);
         OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
 
-        // System.out.println(store.getPaths());
-
         store.getPaths().forEach((api, value) -> {
-            // System.out.println(api);
             value.readOperationsMap().forEach((method, val) -> {
 
-                // System.out.println("-->" + method);
-                // Map<String, Object> validation = new HashMap<>();
                 try {
                     Menu menu = new Menu(method.name(), api, val.getSummary());
                     menu.setSubDescription(val.getDescription());
@@ -99,27 +94,27 @@ public class MenuService {
                             if (resKey.equalsIgnoreCase("200")) {
                                 if (resVal.getContent() != null) {
                                     resVal.getContent().forEach((contKey, contVal) -> {
-                                        // res.put(resKey, contVal.getSchema().getProperties()); //without
-                                        // FilterRedundantData()
+
                                         res.put(resKey, getSchema(contVal.getSchema().getProperties(),
                                                 isNull(contVal.getSchema().getType())));
                                         response.setSuccess(res);
-                                        response.setSuccessDetails(formTableFromSchema(contVal.getSchema().getProperties(),
-                                                -1, isNull(contVal.getSchema().getRequired()),
-                                                isNull(contVal.getSchema().getType())));
+                                        response.setSuccessDetails(
+                                                formTableFromSchema(contVal.getSchema().getProperties(), -1,
+                                                        isNull(contVal.getSchema().getRequired()),
+                                                        isNull(contVal.getSchema().getType())));
                                     });
                                 }
                             } else {
                                 if (resVal.getContent() != null) {
                                     resVal.getContent().forEach((contKey, contVal) -> {
-                                        // res.put(resKey, contVal.getSchema().getProperties()); //without
-                                        // FilterRedundantData()
+
                                         res.put(resKey, getSchema(contVal.getSchema().getProperties(),
                                                 isNull(contVal.getSchema().getType())));
                                         response.setFailure(res);
-                                        response.setFailureDetails(formTableFromSchema(contVal.getSchema().getProperties(),
-                                                -1, isNull(contVal.getSchema().getRequired()),
-                                                isNull(contVal.getSchema().getType())));
+                                        response.setFailureDetails(
+                                                formTableFromSchema(contVal.getSchema().getProperties(), -1,
+                                                        isNull(contVal.getSchema().getRequired()),
+                                                        isNull(contVal.getSchema().getType())));
                                     });
                                 }
                             }
@@ -147,49 +142,43 @@ public class MenuService {
                             parameterMap.put("parameter", parVal.getName());
                             parameterDetails.add(parameterMap);
 
-                            
                             eachValidation.put("Level", ++id);
                             eachValidation.put("parameter", parVal.getName());
                             eachValidation.put("parentId", -1);
-                            eachValidation.put("pattern", parVal.getSchema().getPattern() == null ? "-" : parVal.getSchema().getPattern());
+                            eachValidation.put("pattern",
+                                    parVal.getSchema().getPattern() == null ? "-" : parVal.getSchema().getPattern());
                             eachValidation.put("enum", ((parVal.getSchema().getEnum() == null) ? "-"
-                            : parVal.getSchema().getEnum().toString()));
-                            eachValidation.put("maxLength", ((parVal.getSchema().getMaxLength() == null)
-                            ? "-"
-                            : parVal.getSchema().getMaxLength().toString()));
-                            eachValidation.put("minLength", ((parVal.getSchema().getMinLength() == null)
-                            ? "-"
-                            : parVal.getSchema().getMinLength().toString()));
+                                    : parVal.getSchema().getEnum().toString()));
+                            eachValidation.put("maxLength", ((parVal.getSchema().getMaxLength() == null) ? "-"
+                                    : parVal.getSchema().getMaxLength().toString()));
+                            eachValidation.put("minLength", ((parVal.getSchema().getMinLength() == null) ? "-"
+                                    : parVal.getSchema().getMinLength().toString()));
 
                             parameterValidation.add(eachValidation);
-                            }
-                        );
+                        });
 
                         yamlParser.setParameterPayloadDetails(parameterDetails);
                         yamlParser.setParameterPayload(parameter);
                         yamlParser.setParameterValidation(parameterValidation);
-                        
+
                     }
                     if (!Objects.isNull(val.getRequestBody())) {
                         id = 100;
-                        // MediaType contentVal =
-                        // val.getRequestBody().getContent().get("application/json");
                         val.getRequestBody().getContent().forEach((contentKey, contentVal) -> {
                             yamlParser.setRequestPayloadExample(contentVal.getSchema().getExample());
 
                             yamlParser.setRequestPayload(getSchema(nullFieldFilter(contentVal.getSchema()),
                                     isNull(contentVal.getSchema().getType())));
 
-                            yamlParser.setRequestPayloadDetails(formTableFromSchema(nullFieldFilter(contentVal.getSchema()),
-                                    -1, isNull(contentVal.getSchema().getRequired()),
-                                    isNull(contentVal.getSchema().getType())));
-                                    
-                            yamlParser.setRequestValidation(
+                            yamlParser.setRequestPayloadDetails(
                                     formTableFromSchema(nullFieldFilter(contentVal.getSchema()), -1,
                                             isNull(contentVal.getSchema().getRequired()),
                                             isNull(contentVal.getSchema().getType())));
-                        });
 
+                            yamlParser.setRequestValidation(formTableFromSchema(nullFieldFilter(contentVal.getSchema()),
+                                    -1, isNull(contentVal.getSchema().getRequired()),
+                                    isNull(contentVal.getSchema().getType())));
+                        });
 
                     }
                     if (!Objects.isNull(val.getSecurity())) {
@@ -226,7 +215,7 @@ public class MenuService {
                                 typeOK = Objects.isNull(flag.get("type"));
 
                             if (!typeOK && !flagOK && flag.get("type").equals("object")) {
-                                
+
                                 map.put(key, getSchema(flag.get("properties"), "object"));
                             } else if (!flagOK && !typeOK && flag.get("type").equals("array")) {
                                 map.put(key, getSchema(flag.get("items"), "array"));
@@ -235,7 +224,7 @@ public class MenuService {
                                     map.put(key, flag.get("type"));
                             }
                         } catch (Exception e) {
-                            
+
                         }
 
                     });
@@ -285,18 +274,22 @@ public class MenuService {
                                 Objects.isNull(mapper.convertValue(value, Map.class).get("description")) ? "-"
                                         : mapper.convertValue(value, Map.class).get("description"));
                         if (mapper.convertValue(value, Map.class).get("type").equals("object")) {
-                            tableData.addAll(
-                                    formTableFromSchema(mapper.convertValue(value, Map.class).get("properties"), id,
-                                            requiredFileds, "object"));
+                            tableData
+                                    .addAll(formTableFromSchema(mapper.convertValue(value, Map.class).get("properties"),
+                                            id, requiredFileds, "object"));
                         } else if (mapper.convertValue(value, Map.class).get("type").equals("array")) {
-                            tableData.addAll(formTableFromSchema(mapper.convertValue(value, Map.class).get("items"),
-                                    id, requiredFileds, "array"));
+                            tableData.addAll(formTableFromSchema(mapper.convertValue(value, Map.class).get("items"), id,
+                                    requiredFileds, "array"));
                         } else {
                             table.put("Type", mapper.convertValue(value, Map.class).get("type"));
-                            table.put("enum", mapper.convertValue(value, Map.class).get("enum") == null ? "-":  mapper.convertValue(value, Map.class).get("enum"));
-                            table.put("maxLength", mapper.convertValue(value, Map.class).get("maxLength") == null ? "-": mapper.convertValue(value, Map.class).get("maxLength") );
-                            table.put("minLength", mapper.convertValue(value, Map.class).get("minLength") == null ? "-" : mapper.convertValue(value, Map.class).get("minLength"));
-                            table.put("pattern", mapper.convertValue(value, Map.class).get("pattern") == null ? "-" : mapper.convertValue(value, Map.class).get("pattern"));
+                            table.put("enum", mapper.convertValue(value, Map.class).get("enum") == null ? "-"
+                                    : mapper.convertValue(value, Map.class).get("enum"));
+                            table.put("maxLength", mapper.convertValue(value, Map.class).get("maxLength") == null ? "-"
+                                    : mapper.convertValue(value, Map.class).get("maxLength"));
+                            table.put("minLength", mapper.convertValue(value, Map.class).get("minLength") == null ? "-"
+                                    : mapper.convertValue(value, Map.class).get("minLength"));
+                            table.put("pattern", mapper.convertValue(value, Map.class).get("pattern") == null ? "-"
+                                    : mapper.convertValue(value, Map.class).get("pattern"));
                         }
                         tableData.add(table);
                     });
@@ -319,26 +312,6 @@ public class MenuService {
         return tableData;
     }
 
-    public Object testing(String path) {
-
-        ParseOptions parseOptions = new ParseOptions();
-        parseOptions.setResolve(true);
-        parseOptions.setResolveFully(true);
-        OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
-
-        // return nullFieldFilter(
-        // store.getPaths().get("/mplace/selleritems").getPost().getResponses().get("200").getContent().get("*/*").getSchema());
-        // return nullFieldFilter(
-        // store.getPaths().get("/mplace/selleritems").getPost().getRequestBody().getContent().get("application/json").getSchema())
-        // ;
-        
-        
-        return nullFieldFilter(store.getPaths().get("/purchase/orders").getPost().getResponses().get("200").getContent().get("*/*").getSchema());
-        // return
-        // getSchema(nullFieldFilter(store.getPaths().get("/purchase/orders").getPost().getRequestBody()
-        // .getContent().get("application/json").getSchema()), "array");
-    }
-
     public Object nullFieldFilter(Object schema) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -350,4 +323,18 @@ public class MenuService {
         }
         return null;
     }
+
+    ///////////////////////////////////////////////////////// Only For
+    ///////////////////////////////////////////////////////// Testing////////////////////////////////////////////////////////////////////////////////////////
+    public Object testing(String path) {
+
+        ParseOptions parseOptions = new ParseOptions();
+        parseOptions.setResolve(true);
+        parseOptions.setResolveFully(true);
+        OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
+
+        return nullFieldFilter(store.getPaths().get("/purchase/orders").getPost().getResponses().get("200").getContent()
+                .get("*/*").getSchema());
+    }
+
 }
