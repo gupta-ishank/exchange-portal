@@ -211,11 +211,10 @@ public class MenuService {
                             Map<String, Object> flag = mapper.convertValue(value, Map.class);
                             Boolean flagOK = Objects.isNull(flag);
                             Boolean typeOK = false;
-                            if (!flagOK)
+                            if (!flagOK) {
                                 typeOK = Objects.isNull(flag.get("type"));
-
+                            }
                             if (!typeOK && !flagOK && flag.get("type").equals("object")) {
-
                                 map.put(key, getSchema(flag.get("properties"), "object"));
                             } else if (!flagOK && !typeOK && flag.get("type").equals("array")) {
                                 map.put(key, getSchema(flag.get("items"), "array"));
@@ -243,13 +242,13 @@ public class MenuService {
                         }
                     }
                 } catch (Exception e) {
-                    // System.out.println("Mapper Dusra Else if |--> " + e.getMessage());
+                    System.out.println("getSchema() - Else if |--> " + e.getMessage());
                 }
                 return list;
             }
 
         } catch (Exception e) {
-            System.out.println("Exception |->>>>>" + e.getMessage());
+            System.out.println("getSchema() - Body" + e.getMessage());
         }
         return null;
     }
@@ -307,7 +306,7 @@ public class MenuService {
             }
 
         } catch (Exception e) {
-            // System.out.println("Exception at Formating Table | " + e.getMessage());
+            System.out.println("formTableFromSchema() - Body | " + e.getMessage());
         }
         return tableData;
     }
@@ -319,7 +318,7 @@ public class MenuService {
             String filteredSchema = mapper.writeValueAsString(schema);
             return new ObjectMapper().readTree(filteredSchema);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("nullFieldFilter - Body | " + e.getMessage());
         }
         return null;
     }
