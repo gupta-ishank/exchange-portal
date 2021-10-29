@@ -39,5 +39,5 @@ POST  http://localhost:8080/
 Content-Type: application/json
 
 {
-    "path": "D:\\Netmeds\\Test\\Swagger\\nma adaptor.json"
+    "path": "D:\\Netmeds\\Test\\RWOS\\Netmeds Adaptor API.json"
 }
