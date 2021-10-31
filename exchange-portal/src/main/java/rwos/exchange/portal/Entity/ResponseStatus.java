@@ -1,12 +1,12 @@
 package rwos.exchange.portal.Entity;
 
-public class PappuPassHogya{
+public class ResponseStatus{
 	private Object success;
 	private Object failure;
 	private Object successDetails;
 	private Object failureDetails;
 
-	public PappuPassHogya() {
+	public ResponseStatus() {
 	}
 	public Object getSuccess() {
 		return success;

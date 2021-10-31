@@ -1,13 +1,15 @@
+
+
 GET http://localhost:8080/
 
 
 ###
 
-POST http://localhost:8080/
+POST  http://localhost:8080/
 Content-Type: application/json
 
 {
-    "path": "D:\\Netmeds\\Test\\Swagger\\nma adaptor.json"
+    "path": "/home/ashnove/Documents/NETMEDS-WORK/ExchangePortal/TEST/Nutty Crunch/Nutty_Crunch.json"
 }
 
 ####
@@ -28,4 +30,14 @@ Content-Type: application/json
     "password": "password",
     "email": "joynath657@gmail.com",
     "confirmPassword": "password"
+}
+
+
+###
+
+POST  http://localhost:8080/
+Content-Type: application/json
+
+{
+    "path": "D:\\Netmeds\\Test\\RWOS\\Netmeds Adaptor API.json"
 }

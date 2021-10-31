@@ -1,9 +1,9 @@
  package rwos.exchange.portal.Service;
 
 import java.io.File;
-
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +15,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import rwos.exchange.portal.Entity.Menu;
-import rwos.exchange.portal.Entity.PappuPassHogya;
+import rwos.exchange.portal.Entity.ResponseStatus;
 import rwos.exchange.portal.Entity.YamlParser;
 
 
@@ -27,6 +26,7 @@ import rwos.exchange.portal.Entity.YamlParser;
 public class MenuService {
 
     private int id = 100;
+    private String tpath = "";
 
     private FileFilter filter = (file) -> file.isDirectory() || !file.isHidden()
                                     || file.getName().endsWith(".json")
@@ -80,176 +80,170 @@ public class MenuService {
                     Menu menu = new Menu(method.name(), api, val.getSummary());
                     menu.setSubDescription(val.getDescription());
                     YamlParser yamlParser = new YamlParser();
-                    if(!Objects.isNull(val.getResponses())){
+                    tpath = api;
+                    if (!Objects.isNull(val.getResponses())) {
                         id = 100;
-                        val.getResponses().forEach((resKey, resVal) ->{
+                        val.getResponses().forEach((resKey, resVal) -> {
                             Map<String, Object> res = new HashMap<>();
-                            PappuPassHogya response = new PappuPassHogya();
-                            if(resKey.equalsIgnoreCase("200")){
-                                if(resVal.getContent() != null){
-                                    resVal.getContent().forEach((contKey, contVal) ->{
-                                        res.put(resKey, filterRedundedData(contVal.getSchema()
-                                        .getProperties(), isNull(contVal
-                                        .getSchema().getType())));
+                            ResponseStatus response = new ResponseStatus();
+                            if (resKey.equalsIgnoreCase("200")) {
+                                if (resVal.getContent() != null) {
+                                    resVal.getContent().forEach((contKey, contVal) -> {
+
+                                        res.put(resKey, getSchema(nullFieldFilter(contVal.getSchema())));
                                         response.setSuccess(res);
-                                        response.setSuccessDetails(formatTableData2(contVal.getSchema().getProperties(), -1, 
-                                        isNull(contVal.getSchema().getRequired()),
-                                        isNull(contVal.getSchema().getType())));
-                                    });                                
-                                } 
-                            }else{
-                                if(resVal.getContent() != null){
-                                    resVal.getContent().forEach((contKey, contVal) ->{
-                                        res.put(resKey, filterRedundedData(contVal.getSchema()
-                                        .getProperties(), isNull(contVal
-                                        .getSchema().getType())));
-                                        response.setFailure(res);
-                                        response.setFailureDetails(formatTableData2(contVal.getSchema().getProperties(), -1, 
-                                        isNull(contVal.getSchema().getRequired()),
-                                        isNull(contVal.getSchema().getType())));
-                                    });                                  
+                                        response.setSuccessDetails(
+                                                schemaToTable(nullFieldFilter(contVal.getSchema()), -1,
+                                                        isNull(contVal.getSchema().getRequired())));
+                                    });
                                 }
-                            }                    
+                            } else {
+                                if (resVal.getContent() != null) {
+                                    resVal.getContent().forEach((contKey, contVal) -> {
+
+                                        res.put(resKey, getSchema(nullFieldFilter(contVal.getSchema())));
+                                        response.setFailure(res);
+                                        response.setFailureDetails(
+                                                schemaToTable(nullFieldFilter(contVal.getSchema()), -1,
+                                                        isNull(contVal.getSchema().getRequired())));
+                                    });
+                                }
+                            }
                             yamlParser.setResponsePayload(response);
                         });
 
                     }
-                    if(!Objects.isNull(val.getParameters())){
+                    if (!Objects.isNull(val.getParameters())) {
                         id = 100;
                         List<Object> parameterDetails = new ArrayList<>();
                         Map<String, String> parameter = new HashMap<>();
-                        val.getParameters().forEach(parVal ->{
+
+                        val.getParameters().forEach(parVal -> {
                             Map<String, Object> parameterMap = new HashMap<>();
                             parameter.put(parVal.getName(), parVal.getSchema().getType());
+                            parameterMap.put("Type", parVal.getSchema().getType());
                             parameterMap.put("Level", ++id);
-                            parameterMap.put("description", parVal.getDescription() == null ? "-" : parVal.getDescription());
+                            parameterMap.put("Description",
+                                    parVal.getDescription() == null ? "-" : parVal.getDescription());
+                            parameterMap.put("parameterType", parVal.getIn());
                             parameterMap.put("parentId", -1);
-                            parameterMap.put("Mendate", parVal.getRequired());
+                            parameterMap.put("Mendate", parVal.getRequired() == null ? false : true);
                             parameterMap.put("parameter", parVal.getName());
-                            parameterDetails.add(parameterMap); 
+                            parameterMap.put("pattern",
+                            parVal.getSchema().getPattern() == null ? "-" : parVal.getSchema().getPattern());
+                            parameterMap.put("maxLength", ((parVal.getSchema().getMaxLength() == null) ? "-"
+                            : parVal.getSchema().getMaxLength().toString()));
+                            parameterMap.put("minLength", ((parVal.getSchema().getMinLength() == null) ? "-"
+                            : parVal.getSchema().getMinLength().toString()));
+
+                            parameterDetails.add(parameterMap);
                         });
+
                         yamlParser.setParameterPayloadDetails(parameterDetails);
                         yamlParser.setParameterPayload(parameter);
+
                     }
-                    if(!Objects.isNull(val.getRequestBody())){
+                    if (!Objects.isNull(val.getRequestBody())) {
                         id = 100;
-                        MediaType contentVal = val.getRequestBody()
-                        .getContent().get("application/json");
-                        yamlParser
-                            .setRequestPayloadExample(contentVal.getSchema().getExample());
-                        yamlParser
-                            .setRequestPayload(filterRedundedData(contentVal
-                            .getSchema(), isNull(contentVal
-                            .getSchema().getType())));
-                        yamlParser
-                            .setRequestPayloadDetails(formatTableData2(contentVal
-                            .getSchema().getProperties(), -1, isNull(contentVal.getSchema().getRequired()),
-                            isNull(contentVal.getSchema().getType())));
+                        val.getRequestBody().getContent().forEach((contentKey, contentVal) -> {
+                            yamlParser.setRequestPayloadExample(contentVal.getSchema().getExample());
+
+                            yamlParser.setRequestPayload(getSchema(nullFieldFilter(contentVal.getSchema())));
+
+                            yamlParser.setRequestPayloadDetails(
+                                    schemaToTable(nullFieldFilter(contentVal.getSchema()), -1,
+                                            isNull(contentVal.getSchema().getRequired())));
+                        });
+
                     }
+                    if (!Objects.isNull(val.getSecurity())) {
+                        yamlParser.setSecurity(val.getSecurity());
+                    }
+                   
                     menu.setSchema(yamlParser);
-                    data.add(menu);
+                    data.add(menu); 
                 } catch (Exception e) {
-                    System.out.println("excemtion in" + method.name());
+
                 }   
             });
         });
         return data;
     }
     
-    //
     @SuppressWarnings("unchecked")
-    public Object filterRedundedData(Object obj, String type) {
-
-    	try {
-    		Map<String, Object> map = new HashMap<>();
-    		ObjectMapper mapper = new ObjectMapper();
-    		Map<String, Object> objMap = mapper.convertValue(obj, Map.class);
-            if(type.equals("object")){
-                if(!Objects.isNull(objMap)) {
-                    objMap.forEach((key, value)->{
-                        if(mapper.convertValue(value, Map.class).get("type").equals("object")){
-                            map.put(key, filterRedundedData(mapper.convertValue(value, Map.class).get("properties"), "object")) ;
-                        }else if(mapper.convertValue(value, Map.class).get("type").equals("array")){
-                            // if(!Objects.isNull(mapper.convertValue(value, Map.class).get("items")))
-                                map.put(key, filterRedundedData(mapper.convertValue(value, Map.class).get("items"), "array"));
-                        } else{
-                            map.put(key, mapper.convertValue(value, Map.class).get("type"));
-                        }
-                    });    		
+    public Object getSchema(Object obj) {
+        Map<String, Object> map = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> objMap = mapper.convertValue(obj, Map.class);
+        try {
+            for(String key : objMap.keySet()){
+                if(objMap.containsKey("properties") && objMap.containsKey("type") && objMap.get("type").equals("object")){
+                    return getSchema(objMap.get("properties"));
+                } else if(objMap.containsKey("items") && objMap.containsKey("type") && objMap.get("type").equals("array")){
+                    return Arrays.asList(getSchema(objMap.get("items")));
                 }
-                return map;   
-            }else if(type.equals("array")){
-                List<Object> list = new ArrayList<>();
-                if(!Objects.isNull(objMap)) {
-                    if(objMap.get("type").equals("object") && !Objects.isNull(objMap.get("properties"))){
-                        list.add(filterRedundedData(objMap.get("properties"), "object"));
-                    }else if(objMap.get("type").equals("array")){
-                        list.add(filterRedundedData(objMap.get("items"), "array"));
+                if(key.equals("type")) map.put(key, objMap.get(key));
+                if(objMap.get(key).getClass().getSimpleName().equals("LinkedHashMap")){
+                    Map<String, Object> newObj = mapper.convertValue(objMap.get(key), Map.class);
+                    if( newObj.containsKey("type")
+                    && (newObj.containsKey("properties") && newObj.get("type").equals("object"))
+                    || (newObj.containsKey("items") && newObj.get("type").equals("array"))){
+                        map.put(key, getSchema(objMap.get(key)));
                     }else{
-                        list.add(objMap.get("type"));
-                    }		
+                        map.put(key, newObj.get("type"));
+                    }
                 }
-                return list;
-            }
-    		
-    		 		
-    	}
-    	catch(Exception e) {
-    		
-    	}
-    	return null;
+                
+            };
+        } catch (Exception e) {
+            System.out.println("getSchema() - Body" + tpath);
+        }
+        return map;
     }
-
-
     @SuppressWarnings("unchecked")
-    public List<Object> formatTableData2(Object obj, int pId, List<Object> requiredFileds, String type) {
-
+    public List<Object> schemaToTable(Object obj, int pId, List<Object> requiredFileds) {
         List<Object> tableData = new ArrayList<>();
-    	try {
-    		ObjectMapper mapper = new ObjectMapper();
-    		Map<String, Object> objMap = mapper.convertValue(obj, Map.class);
-            if(type.equals("object")){
-                if(!Objects.isNull(objMap)) {
-                    objMap.forEach((key, value)->{
-
-                        Map<String, Object> table = new HashMap<>();
-                        table.put("Level", ++id);
-                        table.put("parentId", pId);
-                        table.put("parameter", key);
-                        table.put("Mendate", requiredFileds.contains(key));
-                        table.put("Description", Objects.isNull(mapper.convertValue(value, Map.class)
-                        .get("description")) ? "-" : mapper.convertValue(value, Map.class)
-                        .get("description"));
-
-                        if(mapper.convertValue(value, Map.class).get("type").equals("object")){
-                            tableData.addAll(formatTableData2(mapper.convertValue(value, Map.class).get("properties"), id, requiredFileds, "object")); 
-                        }else if(mapper.convertValue(value, Map.class).get("type").equals("array")){
-                            tableData.addAll(formatTableData2(mapper.convertValue(value, Map.class).get("items"), id, requiredFileds, "array")); 
-                        } else{
-                            table.put("Type", mapper.convertValue(value, Map.class).get("type"));
-                        }
-                        tableData.add(table);
-                    });    		
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> objMap = mapper.convertValue(obj, Map.class);
+        try {
+            for(String key : objMap.keySet()){
+                if(objMap.containsKey("properties") && objMap.containsKey("type") && objMap.get("type").equals("object")){
+                    return schemaToTable(objMap.get("properties"), pId, requiredFileds);
+                } else if(objMap.containsKey("items") && objMap.containsKey("type") && objMap.get("type").equals("array")){
+                    return schemaToTable(objMap.get("items"), pId, requiredFileds);
                 }
-                  
-            }else if(type.equals("array")){
-                if(!Objects.isNull(objMap)) {  
-                    if(objMap.get("type").equals("object") && !Objects.isNull(objMap.get("properties"))){
-                        tableData.addAll( formatTableData2(objMap.get("properties"),id, requiredFileds, "object"));
-                    }else if(objMap.get("type").equals("array")){
-                        tableData.addAll( formatTableData2(objMap.get("items"),id, requiredFileds, "array"));
-                    }		
+                else if(objMap.get(key).getClass().getSimpleName().equals("LinkedHashMap")){
+                    Map<String, Object> table = new HashMap<>();
+                    Map<String, Object> newObj = mapper.convertValue(objMap.get(key), Map.class);
+                    table.put("Level", ++id);
+                    table.put("parentId", pId);
+                    table.put("parameter", key);
+                    table.put("Mendate", requiredFileds.contains(key));
+                    table.put("Description",
+                            Objects.isNull(newObj.get("description")) ? "-" : newObj.get("description"));
+                    table.put("Type", newObj.get("type"));
+                    table.put("enum", newObj.get("enum") == null ? "-"
+                            : newObj.get("enum"));
+                    table.put("maxLength", newObj.get("maxLength") == null ? "-"
+                            : newObj.get("maxLength"));
+                    table.put("minLength", newObj.get("minLength") == null ? "-"
+                            : newObj.get("minLength"));
+                    table.put("pattern", newObj.get("pattern") == null ? "-"
+                            : newObj.get("pattern"));
+                    if(newObj.containsKey("type")
+                    && (newObj.containsKey("properties") && newObj.get("type").equals("object"))
+                    || (newObj.containsKey("items") && newObj.get("type").equals("array"))){
+                        tableData.addAll(schemaToTable(objMap.get(key), id, requiredFileds));
+                    }
+                    tableData.add(table);
                 }
-            }
-    		
-    		 		
-    	}
-    	catch(Exception e) {
-    		
-    	}
-    	return tableData; 
+                
+            };
+        } catch (Exception e) {
+            System.out.println("schemaToTable() - Body | " + tpath);
+        }
+        return tableData;
     }
-
 
     public Object testing(String path) {
 
@@ -260,7 +254,7 @@ public class MenuService {
 
         // return nullFieldFilter( store.getPaths().get("/mplace/selleritems").getPost().getResponses().get("200").getContent().get("*/*").getSchema());
         // return nullFieldFilter( store.getPaths().get("/mplace/selleritems").getPost().getRequestBody().getContent().get("application/json").getSchema()) ;
-         return formatTableData2( nullFieldFilter( store.getPaths().get("/mplace/selleritems").getPost().getResponses().get("200").getContent().get("*/*").getSchema()),id, new ArrayList<>(), "array") ;
+        return getSchema(nullFieldFilter(store.getPaths().get("/purchase/orders").getGet().getResponses().get("200").getContent().get("*/*").getSchema()));
     }
 
     public Object nullFieldFilter(Object schema){
