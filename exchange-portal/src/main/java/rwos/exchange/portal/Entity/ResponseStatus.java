@@ -1,37 +1,45 @@
 package rwos.exchange.portal.Entity;
 
 public class ResponseStatus{
-	private Object success;
-	private Object failure;
-	private Object successDetails;
-	private Object failureDetails;
+	private Object response;
+	private Object responseDetails;
+	private Object successExample;
+	private Object failureExample;
 
 	public ResponseStatus() {
 	}
-	public Object getSuccess() {
-		return success;
-	}
-	public void setSuccess(Object success) {
-		this.success = success;
-	}
-	public Object getFailure() {
-		return failure;
-	}
-	public void setFailure(Object failure) {
-		this.failure = failure;
-	}
-    public Object getSuccessDetails() {
-        return successDetails;
-    }
-    public void setSuccessDetails(Object successDetails) {
-        this.successDetails = successDetails;
-    }
-    public Object getFailureDetails() {
-        return failureDetails;
-    }
-    public void setFailureDetails(Object failureDetails) {
-        this.failureDetails = failureDetails;
-    }
-    
 
+	public Object getResponse() {
+		return response;
+	}
+
+	public void setResponse(Object response) {
+		this.response = response;
+	}
+
+	public Object getResponseDetails() {
+		return responseDetails;
+	}
+
+	public void setResponseDetails(Object responseDetails) {
+		this.responseDetails = responseDetails;
+	}
+
+	public Object getSuccessExample() {
+		return successExample;
+	}
+
+	public void setSuccessExample(Object successExample) {
+		this.successExample = successExample;
+	}
+
+	public Object getFailureExample() {
+		return failureExample;
+	}
+
+	public void setFailureExample(Object failureExample) {
+		this.failureExample = failureExample;
+	}
+	
+	
 }

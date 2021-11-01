@@ -5,7 +5,6 @@ public class YamlParser {
     private Object requestPayload = "";
     private Object requestPayloadExample = "";
     private Object requestPayloadDetails = "";
-    private Object parameterValidation = "";
 
     private Object parameterPayload = "";
     private Object parameterPayloadExample = "";
@@ -13,18 +12,9 @@ public class YamlParser {
     private Object responsePayloadExample = "";
     private Object security = "";
     private ResponseStatus responsePayload;
-    private Object requestValidation;
 
     public YamlParser() {
 
-    }
-
-    public Object getRequestValidation() {
-        return requestValidation;
-    }
-
-    public void setRequestValidation(Object requestValidation) {
-        this.requestValidation = requestValidation;
     }
 
     public Object getRequestPayload() {
@@ -97,14 +87,6 @@ public class YamlParser {
 
     public void setSecurity(Object security) {
         this.security = security;
-    }
-
-    public Object getParameterValidation() {
-        return parameterValidation;
-    }
-
-    public void setParameterValidation(Object parameterValidation) {
-        this.parameterValidation = parameterValidation;
     }
 
 }

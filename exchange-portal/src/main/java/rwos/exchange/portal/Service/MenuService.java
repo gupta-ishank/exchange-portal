@@ -84,31 +84,17 @@ public class MenuService {
                     if (!Objects.isNull(val.getResponses())) {
                         id = 100;
                         val.getResponses().forEach((resKey, resVal) -> {
-                            Map<String, Object> res = new HashMap<>();
                             ResponseStatus response = new ResponseStatus();
-                            if (resKey.equalsIgnoreCase("200")) {
-                                if (resVal.getContent() != null) {
-                                    resVal.getContent().forEach((contKey, contVal) -> {
-
-                                        res.put(resKey, getSchema(nullFieldFilter(contVal.getSchema())));
-                                        response.setSuccess(res);
-                                        response.setSuccessDetails(
-                                                schemaToTable(nullFieldFilter(contVal.getSchema()), -1,
-                                                        isNull(contVal.getSchema().getRequired())));
-                                    });
-                                }
-                            } else {
-                                if (resVal.getContent() != null) {
-                                    resVal.getContent().forEach((contKey, contVal) -> {
-
-                                        res.put(resKey, getSchema(nullFieldFilter(contVal.getSchema())));
-                                        response.setFailure(res);
-                                        response.setFailureDetails(
-                                                schemaToTable(nullFieldFilter(contVal.getSchema()), -1,
-                                                        isNull(contVal.getSchema().getRequired())));
-                                    });
-                                }
+                            resVal.getContent().forEach((contKey, contVal) -> {
+                                response.setResponse(getSchema(nullFieldFilter(contVal.getSchema())));;
+                                response.setResponseDetails(
+                                        schemaToTable(nullFieldFilter(contVal.getSchema()), -1,
+                                                isNull(contVal.getSchema().getRequired())));
+                            
+                            if(contVal.getExamples() != null && contVal.getExamples().get("response") != null){
+                                response.setSuccessExample(contVal.getExamples().get("response").getValue());
                             }
+                            });
                             yamlParser.setResponsePayload(response);
                         });
 
@@ -163,7 +149,7 @@ public class MenuService {
                     menu.setSchema(yamlParser);
                     data.add(menu); 
                 } catch (Exception e) {
-
+                    System.out.println("exception in ->>" + api);
                 }   
             });
         });
@@ -254,7 +240,7 @@ public class MenuService {
 
         // return nullFieldFilter( store.getPaths().get("/mplace/selleritems").getPost().getResponses().get("200").getContent().get("*/*").getSchema());
         // return nullFieldFilter( store.getPaths().get("/mplace/selleritems").getPost().getRequestBody().getContent().get("application/json").getSchema()) ;
-        return getSchema(nullFieldFilter(store.getPaths().get("/purchase/orders").getGet().getResponses().get("200").getContent().get("*/*").getSchema()));
+        return ((store.getPaths().get("/paramDefs/{paramDefId}").getGet().getResponses().get("200").getContent().get("application/json")));
     }
 
     public Object nullFieldFilter(Object schema){
