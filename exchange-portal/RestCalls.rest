@@ -9,7 +9,7 @@ POST  http://localhost:8080/
 Content-Type: application/json
 
 {
-    "path": "/home/ashnove/Documents/NETMEDS-WORK/ExchangePortal/TEST/Nutty Crunch/Nutty_Crunch.json"
+    "path": "/home/ashnove/Documents/NETMEDS/ExchangePortal/TEST2/NPRS.json"
 }
 
 ####

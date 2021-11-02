@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import rwos.exchange.portal.Entity.Menu;
 import rwos.exchange.portal.Service.MenuService;
 
-
 @RestController
 @RequestMapping
 @CrossOrigin(origins = "*")
@@ -22,19 +21,19 @@ public class MenuController {
 
     @Autowired
     private MenuService menuService;
-    
-   @Value("${app.base.path}")
-   private String myPath;
-    
+
+    @Value("${app.base.path}")
+    private String myPath;
+
     @GetMapping("")
-    public List<Menu> getAllMenu(){
+    public List<Menu> getAllMenu() {
         final File folder = new File(myPath);
         return menuService.getAllMenu(folder);
     }
 
-    @PostMapping("")
-    public Object testing(@RequestBody Menu data){
-        return menuService.testing(data.getPath());
-    }
-    
+    // @PostMapping("")
+    // public Object testing(@RequestBody Menu data) {
+    // return menuService.getFileContent(data.getPath());
+    // }
+
 }
