@@ -20,16 +20,13 @@ import rwos.exchange.portal.Entity.Menu;
 public class DownloadFile {
 
     @GetMapping("/download")
-    public String downloadFile(String path, HttpServletResponse res) {
+    public void downloadFile(String path, HttpServletResponse res) {
         try {
             res.setHeader("Content-Disposition", "attachment; filename=sample.txt");
-            System.out.println(path.toString());
             res.getOutputStream().write(contentOf(path));
-            return "Successfully Downloaded";
         } catch (Exception e) {
             System.out.println("downloadFile() | " + e.getMessage());
         }
-        return "Failed!";
     }
 
     private byte[] contentOf(String path) {
