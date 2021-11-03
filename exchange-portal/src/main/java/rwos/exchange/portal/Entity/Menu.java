@@ -3,34 +3,30 @@ package rwos.exchange.portal.Entity;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 public class Menu {
     private String name = "";
     private String path = "";
     private int type = 0;
     private String description = "";
     private String subDescription = "";
-    private List<Menu> childs =  new ArrayList<>();
+    private List<Menu> childs = new ArrayList<>();
     private Object schema;
-    
-    
+
     public Menu() {
     }
+
     public Menu(String name, String path, String description) {
         this.name = name;
         this.path = path;
         this.description = description;
     }
 
-    
-	public Menu(String name, String path, int type, List<Menu> childs) {
+    public Menu(String name, String path, int type, List<Menu> childs) {
         this.name = name;
         this.path = path;
         this.type = type;
         this.childs = childs;
     }
-
 
     public String getName() {
         return name;
@@ -59,9 +55,11 @@ public class Menu {
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
+
     public List<Menu> getChilds() {
         return childs;
     }
@@ -73,6 +71,7 @@ public class Menu {
     public void setSchema(Object schema) {
         this.schema = schema;
     }
+
     public Object getSchema() {
         return schema;
     }
@@ -83,5 +82,11 @@ public class Menu {
 
     public void setSubDescription(String subDescription) {
         this.subDescription = subDescription;
+    }
+
+    @Override
+    public String toString() {
+        return "Menu [childs=" + childs + ", description=" + description + ", name=" + name + ", path=" + path
+                + ", schema=" + schema + ", subDescription=" + subDescription + ", type=" + type + "]";
     }
 }

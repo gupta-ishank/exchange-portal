@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import rwos.exchange.portal.Entity.Menu;
 import rwos.exchange.portal.Service.MenuService;
 
@@ -31,9 +32,8 @@ public class MenuController {
         return menuService.getAllMenu(folder);
     }
 
-    // @PostMapping("")
-    // public Object testing(@RequestBody Menu data) {
-    // return menuService.getFileContent(data.getPath());
-    // }
-
+    @PostMapping("")
+    public Object testing(@RequestBody Menu data) {
+        return menuService.testing(data.getPath());
+    }
 }

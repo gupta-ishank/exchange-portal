@@ -5,6 +5,14 @@ GET http://localhost:8080/
 
 ###
 
+GET  http://localhost:8080/download
+Content-Type: application/json
+
+{
+    "path": "/home/ashnove/Documents/NETMEDS/ExchangePortal/TEST2/NPRS.json"
+}
+
+###
 POST  http://localhost:8080/
 Content-Type: application/json
 
