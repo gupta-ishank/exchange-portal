@@ -29,6 +29,7 @@ public class DownloadFile {
         }
     }
 
+    @GetMapping("/fileContent")
     private byte[] contentOf(String path) {
         try {
             return Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource(path).toURI()));

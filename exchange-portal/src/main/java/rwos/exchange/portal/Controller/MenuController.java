@@ -26,13 +26,13 @@ public class MenuController {
     @Value("${app.base.path}")
     private String myPath;
 
-    @GetMapping("")
+    @GetMapping("/menu")
     public List<Menu> getAllMenu() {
         final File folder = new File(myPath);
         return menuService.getAllMenu(folder);
     }
 
-    @PostMapping("")
+    @PostMapping("/test")
     public Object testing(@RequestBody Menu data) {
         return menuService.testing(data.getPath());
     }
