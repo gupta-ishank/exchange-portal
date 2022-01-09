@@ -241,22 +241,6 @@ public class MenuService {
         return tableData;
     }
 
-    public Object testing(String path) {
-
-        ParseOptions parseOptions = new ParseOptions();
-        parseOptions.setResolve(true);
-        parseOptions.setResolveFully(true);
-        OpenAPI store = new OpenAPIV3Parser().read(path, null, parseOptions);
-
-        // return nullFieldFilter(
-        // store.getPaths().get("/mplace/selleritems").getPost().getResponses().get("200").getContent().get("*/*").getSchema());
-        // return nullFieldFilter(
-        // store.getPaths().get("/mplace/selleritems").getPost().getRequestBody().getContent().get("application/json").getSchema())
-        // ;
-        return ((store.getPaths().get("/paramDefs/{paramDefId}").getGet().getResponses().get("200").getContent()
-                .get("application/json")));
-    }
-
     public Object nullFieldFilter(Object schema) {
         try {
             ObjectMapper mapper = new ObjectMapper();
